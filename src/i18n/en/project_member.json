@@ -1,0 +1,13 @@
+{
+  "NOT_FOUND": "Project Member does not exist.",
+  "VALIDATION": {
+    "PROJECT" : {
+      "REQUIRED": "Project is required.",
+      "NOT_FOUND": "Project does not exist."
+    },
+    "COLLABORATOR" : {
+      "REQUIRED": "Collaborator  is required.",
+      "NOT_FOUND": "Collaborator does not exist."
+    }
+  }
+}

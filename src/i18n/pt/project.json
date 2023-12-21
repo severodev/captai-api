@@ -1,0 +1,13 @@
+{
+  "NOT_FOUND": "Projeto não existe.",
+  "ID_MISMATCH": "O ID de Projeto informado na URL e no corpo do objeto são diferentes.",
+  "VALIDATION": {
+    "INSTITUTE" : {
+      "REQUIRED": "Instituto é obrigatório.",
+      "NOT_FOUND": "Instituto não existe."
+    },
+    "BANK" : {
+      "NOT_FOUND": "Banco não existe."
+    }
+  }
+}

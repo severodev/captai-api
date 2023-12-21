@@ -1,0 +1,13 @@
+{
+  "NOT_FOUND": "Membro do Projeto não existe.",
+  "VALIDATION": {
+    "PROJECT" : {
+      "REQUIRED": "Projeto é obrigatório.",
+      "NOT_FOUND": "Projeto não existe."
+    },
+    "COLLABORATOR" : {
+      "REQUIRED": "Colaborador é obrigatório.",
+      "NOT_FOUND": "Colaborador não existe."
+    }
+  }
+}

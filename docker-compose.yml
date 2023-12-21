@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  frontend:
+    container_name: ${APP_NAME}-${ENV_NAME}
+    image: ${REGISTRY_ADDRESS}/${APP_NAME}:${ENV_NAME}
+    env_file:
+      - .env
+    ports:
+       - "${EXTERNAL_PORT}:9000"
+    volumes:
+      - /logs:/usr/src/app/logs
+    logging:
+      driver: gelf
+      options:
+        gelf-address: ${GELF_ADDRESS:-udp://52.72.255.65:9002}
+        tag: ${APP_NAME}
+        env: ${ENV_NAME}
+    restart: always

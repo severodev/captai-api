@@ -1,0 +1,8 @@
+{
+  "NOT_FOUND": "Collaborator does not exist.",
+  "ID_MISMATCH": "Collaborator's ID from the request url and request body do not match.",
+  "VALIDATION": { },
+  "EXPORT" : {
+    "GENERAL" : "Collaborators List"
+  }
+}

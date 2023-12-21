@@ -1,0 +1,9 @@
+{
+    "NOT_FOUND": "Aporte não existe.",
+    "NOT_FOUND_BY_PROJECT": "Esse produto não possui itens de aportes.",
+    "PROJECT_NOT_YET_FINISHED": "Projeto ainda não foi finalizado",
+    "DONATING_PROJECT_NOT_FOUND": "Projeto doador não encontrado",
+    "RECEIVING_PROJECT_NOT_FOUND": "Projeto recebedor não encontrado",
+    "NOT_ENOUGH_MARGIN_FOR_TRANFER": "Não há margem disponível para a transferência",
+    "TRANSFER_TO_DIFFERENT_INSTITUTE_NOT_ALLOWED": "Transferência entre institutos diferentes não é permitida"
+}

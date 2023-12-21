@@ -1,0 +1,13 @@
+{
+  "INVALID": "Invalid token!",
+  "EMAIL_FIRST_ACCESS": {
+    "FROM": "CaptIA System <{email}>",
+    "SUBJECT": "First Access - CaptIA",
+    "BODY": {
+      "GREETINGS": "Hello",
+      "MSG_1_CONTEXT": "Welcome to CaptIA.",
+      "MSG_2_INSTRUCTIONS": "Click the button below to set your password.",
+      "BUTTON_NEW_PASSWORD": "Set password"
+    }
+  }
+}

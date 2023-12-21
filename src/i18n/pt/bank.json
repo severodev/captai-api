@@ -1,0 +1,4 @@
+{
+  "NOT_FOUND": "Banco não existe.",
+  "ID_MISMATCH": "O ID de Banco informado na URL e no corpo do objeto são diferentes."
+}

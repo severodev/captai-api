@@ -1,0 +1,8 @@
+{
+  "NOT_FOUND": "Fornecedor não existe.",
+  "ID_MISMATCH": "O ID de Fornecedor informado na URL e no corpo do objeto são diferentes.",
+  "VALIDATION": { },
+  "EXPORT" : {
+    "GENERAL" : "Lista de Fornecedores"
+  }
+}

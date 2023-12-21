@@ -1,0 +1,7 @@
+{
+  "NOT_FOUND": "Document does not exist.",
+  "ERROR_DELETE_S3": "Impossible to delete file on Amazon S3. URL = {url}",
+  "VALIDATION": {
+    "MAX_SIZE_EXCEDED": "Max size exceded. The size limit for this upload is {maxSize}."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "NOT_FOUND": "Expense does not exist.",
+  "ID_MISMATCH": "Expense's ID from the request url and request body do not match.",
+  "VALIDATION": { },
+  "EXPORT" : {
+    "GENERAL" : "Expenses List"
+  },
+  "INSTALLMENTS": {
+    "NOT_FOUND": "Expense installment does not exist."
+  }
+}

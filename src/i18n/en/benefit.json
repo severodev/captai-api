@@ -1,0 +1,4 @@
+{
+  "NOT_FOUND": "Benefit does not exist.",
+  "ID_MISMATCH": "Benefit's ID from the request url and request body do not match."
+}

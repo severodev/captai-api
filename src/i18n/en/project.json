@@ -1,0 +1,13 @@
+{
+  "NOT_FOUND": "Project does not exist.",
+  "ID_MISMATCH": "Project's ID from the request url and request body do not match.",
+  "VALIDATION": {
+    "INSTITUTE" : {
+      "REQUIRED": "Institute is required.",
+      "NOT_FOUND": "Institute does not exist."
+    },
+    "BANK" : {
+      "NOT_FOUND": "Bank does not exist."
+    }
+  }
+}

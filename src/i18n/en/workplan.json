@@ -1,0 +1,7 @@
+{
+  "NOT_FOUND": "Workplan item does not exist.",  
+  "NOT_FOUND_BY_PROJECT": "This project does not exist or contains workplan items.",  
+  "VALIDATION": {
+    "BUDGET_EXCEEDED": "The addition of this workplan item exceeds the project budget."
+  }
+}

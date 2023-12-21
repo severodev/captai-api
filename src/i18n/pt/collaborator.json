@@ -1,0 +1,8 @@
+{
+  "NOT_FOUND": "Colaborador não existe.",
+  "ID_MISMATCH": "O ID de Colaborador informado na URL e no corpo do objeto são diferentes.",
+  "VALIDATION": { },
+  "EXPORT" : {
+    "GENERAL" : "Lista de Colaboradores"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "NOT_FOUND": "Gasto não existe.",
+  "ID_MISMATCH": "O ID do Gasto informado na URL e no corpo do objeto são diferentes.",
+  "VALIDATION": { },
+  "EXPORT" : {
+    "GENERAL" : "Lista de Gastos"
+  },
+  "INSTALLMENTS": {
+    "NOT_FOUND": "Parcela de pagamento não existe."
+  }
+}

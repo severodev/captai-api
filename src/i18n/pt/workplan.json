@@ -1,0 +1,7 @@
+{
+  "NOT_FOUND": "Item do Plano de Trabalho não existe.",  
+  "NOT_FOUND_BY_PROJECT": "Esse projeto não existe ou não possui itens de plano de trabalho.",  
+  "VALIDATION": {
+    "BUDGET_EXCEEDED": "A inclusão desse item extrapola o limite de margem financeira do projeto."
+  }
+}

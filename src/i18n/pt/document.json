@@ -1,0 +1,7 @@
+{
+  "NOT_FOUND": "Documento não existe.",
+  "ERROR_DELETE_S3": "Não foi possível excluir o documento no Amazon S3. URL = {url}",
+  "VALIDATION": {
+    "MAX_SIZE_EXCEDED": "Tamanho maáximo excedido. O limite para esse tipo de arquivo é {maxSize}."
+  }
+}

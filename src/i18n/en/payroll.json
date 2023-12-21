@@ -1,0 +1,7 @@
+{
+  "NOT_FOUND": "Payroll does not exists.",  
+  "VALIDATION": { },
+  "PAYMENTS" : {
+    "NOT_FOUND": "Payment does not exists."
+  }
+}

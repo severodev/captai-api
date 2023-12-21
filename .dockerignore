@@ -1,0 +1,19 @@
+# git
+.gitignore
+.git
+
+# dependencies
+node_modules/
+
+# docker
+docker-compose.yml
+Dockerfile
+
+# info file
+README.md
+
+# jenkins
+Jenkinsfile
+
+# sensisitive files
+.env

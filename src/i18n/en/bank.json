@@ -1,0 +1,4 @@
+{
+  "NOT_FOUND": "Bank does not exist.",
+  "ID_MISMATCH": "Bank's ID from the request url and request body do not match."  
+}
