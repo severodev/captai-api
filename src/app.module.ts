@@ -6,7 +6,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import moment from "moment";
 import { utilities as nestWinstonModuleUtilities, WinstonModule } from 'nest-winston';
-import { I18nJsonParser, I18nModule } from 'nestjs-i18n';
+import { I18nJsonLoader, I18nModule } from 'nestjs-i18n';
 import * as path from 'path';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
@@ -96,7 +96,7 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
         'en-*': 'en',
         'pt-BR': 'pt',
       },
-      parser: I18nJsonParser,
+      loader: I18nJsonLoader,
       parserOptions: {
         path: __dirname + '/i18n/',
         watch: true,
