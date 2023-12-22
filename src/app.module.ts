@@ -119,14 +119,14 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
           ),
         }),
         new winston.transports.DailyRotateFile({
-          filename: path.join('logs','captia-combined-%DATE%.log'),
+          filename: path.join('logs','captai-combined-%DATE%.log'),
           datePattern: 'DD-MMM-YYYY',
           level: 'debug',
           maxSize: '20m',
           format: winston.format.combine(winston.format.uncolorize()),
         }),
         new winston.transports.DailyRotateFile({
-          filename: path.join('logs', 'errors', 'captia-errors-%DATE%.log'),
+          filename: path.join('logs', 'errors', 'captai-errors-%DATE%.log'),
           datePattern: 'DD-MMM-YYYY',
           level: 'error',
           maxSize: '20m',

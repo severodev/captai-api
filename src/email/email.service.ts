@@ -17,7 +17,7 @@ export class EmailService {
       .sendMail({
         to: 'severo@dellead.com',
         from: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.FROM', {
-          args: { email: 'captia@gmail.com' },
+          args: { email: 'captai@gmail.com' },
         }),
         subject: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.SUBJECT'),
         template: 'password-recovery', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
@@ -60,7 +60,7 @@ export class EmailService {
       .sendMail({
         to: firstAccess.user.email,
         from: await I18nContext.current().translate('first_access.EMAIL_FIRST_ACCESS.FROM', {
-          args: { email: 'captia@gmail.com' },
+          args: { email: 'captai@gmail.com' },
         }),
         subject: await I18nContext.current().translate('first_access.EMAIL_FIRST_ACCESS.SUBJECT'),
         template: join(process.cwd(), 'dist', 'templates', `first-access.pug`), // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.

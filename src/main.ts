@@ -21,8 +21,8 @@ async function bootstrap() {
   });
 
   const options = new DocumentBuilder()
-    .setTitle('CaptIA API')
-    .setDescription('CaptIA API.')
+    .setTitle('CaptAI API')
+    .setDescription('CaptAI API.')
     .setVersion('0.0.1')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
