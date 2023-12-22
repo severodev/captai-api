@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { I18nRequestScopeService } from 'nestjs-i18n';
 import { Repository } from 'typeorm';
 import { FirstAccess } from '../entity/first-access.entity';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class FirstAccessService {
@@ -9,12 +9,11 @@ export class FirstAccessService {
     constructor(
         @Inject('FIRST_ACCESS_REPOSITORY')
         private repository: Repository<FirstAccess>,
-        private readonly i18n: I18nRequestScopeService
     ) { }
 
     async findByUser(userId: number): Promise<FirstAccess> {
         return await this.repository.findOne({
-            where: { user: userId, valid: true },
+            where: { user: { id: userId }, valid: true },
         });
     }
 
@@ -25,12 +24,12 @@ export class FirstAccessService {
         });
 
         if (!firstAccess) {
-            throw new BadRequestException(await this.i18n.translate('first_access.INVALID'));
+            throw new BadRequestException(await I18nContext.current().translate('first_access.INVALID'));
         }
 
         if (firstAccess.expiration.getTime() < new Date().getTime()) {
             this.invalidateRequest(firstAccess);
-            throw new BadRequestException(await this.i18n.translate('first_access.INVALID'));
+            throw new BadRequestException(await I18nContext.current().translate('first_access.INVALID'));
         }
 
         return firstAccess;

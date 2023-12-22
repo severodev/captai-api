@@ -1,6 +1,5 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { classToPlain } from 'class-transformer';
-import { I18nRequestScopeService } from 'nestjs-i18n';
 import { AudityEntryDto } from '../../../audit/interface/audit-entry.dto';
 import { Repository } from 'typeorm';
 import { AuditService } from '../../../audit/service/audit.service';
@@ -8,6 +7,7 @@ import { Project } from '../../../projects/entity/project.entity';
 import { Loan } from '../entities/loan.entity';
 import { CreateLoanDto } from '../interfaces/create-loan.dto';
 import { UpdateLoanDto } from '../interfaces/update-loan.dto';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class LoanService {
@@ -16,7 +16,6 @@ export class LoanService {
     private readonly loanRepository : Repository<Loan>,
     @Inject('PROJECT_REPOSITORY')
     private projectRepository: Repository<Project>,
-    private readonly i18n: I18nRequestScopeService,
     private readonly auditService: AuditService
 
   ){
@@ -29,10 +28,10 @@ export class LoanService {
     let totalReceived = 0;
     let totalToBeReturned = 0;
 
-    const dbProject = await this.projectRepository.findOne(projectId);
+    const dbProject = await this.projectRepository.findOne({ where: { id: projectId}});
     if (!dbProject) {
       throw new NotFoundException(
-          await this.i18n.translate('project.NOT_FOUND', {
+          await I18nContext.current().translate('project.NOT_FOUND', {
               args: { id: projectId },
           })
       );
@@ -40,14 +39,14 @@ export class LoanService {
 
     const dbLoansOrigin = await this.loanRepository.find({
       where : {
-        originProject : projectId,
+        originProject : { id: projectId },
         active : true
       }
     });
 
     const dbLoansTarget = await this.loanRepository.find({
       where : {
-        targetProject : projectId,
+        targetProject : { id: projectId },
         active : true
       }
     });
@@ -79,11 +78,11 @@ export class LoanService {
   }
 
   async returnLoan(loanId: number, auditEntry: AudityEntryDto) {
-    const dbLoan = await this.loanRepository.findOne(loanId);
+    const dbLoan = await this.loanRepository.findOne({ where: { id: loanId }});
 
     if (!dbLoan) {
       throw new NotFoundException(
-          await this.i18n.translate('loan.NOT_FOUND', {
+          await I18nContext.current().translate('loan.NOT_FOUND', {
               args: { id: dbLoan },
           })
       );
@@ -115,11 +114,11 @@ export class LoanService {
   }
 
   async confirmLoan(loanId: number, auditEntry: AudityEntryDto) {
-    const dbLoan = await this.loanRepository.findOne(loanId);
+    const dbLoan = await this.loanRepository.findOne({ where: { id: loanId}});
 
     if (!dbLoan) {
       throw new NotFoundException(
-          await this.i18n.translate('loan.NOT_FOUND', {
+          await I18nContext.current().translate('loan.NOT_FOUND', {
               args: { id: dbLoan },
           })
       );
@@ -151,19 +150,19 @@ export class LoanService {
     const { amount, originProject, targetProject, receiptDate, returnDate } = createLoanDto;
     
     try {
-      let dbOriginProject = await this.projectRepository.findOne(originProject);
+      let dbOriginProject = await this.projectRepository.findOne({ where: { id: originProject}});
       if (!dbOriginProject) {
         throw new NotFoundException(
-            await this.i18n.translate('project.NOT_FOUND', {
+            await I18nContext.current().translate('project.NOT_FOUND', {
                 args: { id: originProject },
             })
         );
       }
 
-      let dbTargetProject = await this.projectRepository.findOne(targetProject);
+      let dbTargetProject = await this.projectRepository.findOne({ where: { id: targetProject}});
       if (!dbTargetProject) {
         throw new NotFoundException(
-            await this.i18n.translate('project.NOT_FOUND', {
+            await I18nContext.current().translate('project.NOT_FOUND', {
                 args: { id: targetProject },
             })
         );
@@ -199,33 +198,37 @@ export class LoanService {
 
   async findLoansReceivedByProjectId(projectId : number){  
 
-    const dbProject = await this.projectRepository.findOne(projectId);
+    const dbProject = await this.projectRepository.findOne( { where: { id: projectId}});
     if (!dbProject) {
       throw new NotFoundException(
-          await this.i18n.translate('project.NOT_FOUND', {
+          await I18nContext.current().translate('project.NOT_FOUND', {
               args: { id: projectId },
           })
       );
     }
        return await this.loanRepository.find({
         relations : ['originProject', 'targetProject'],
-        where : { targetProject : projectId, active : true },
+        where : { targetProject : {
+          id: projectId
+        }, active : true },
       });
   }
 
   async findLoansGivenByProjectId(projectId : number){  
 
-    const dbProject = await this.projectRepository.findOne(projectId);
+    const dbProject = await this.projectRepository.findOne( {where: { id: projectId }});
     if (!dbProject) {
       throw new NotFoundException(
-          await this.i18n.translate('project.NOT_FOUND', {
+          await I18nContext.current().translate('project.NOT_FOUND', {
               args: { id: projectId },
           })
       );
     }
        return await this.loanRepository.find({
         relations : ['originProject', 'targetProject'],
-        where : { originProject : projectId, active : true },
+        where : { originProject : {
+          id: projectId
+        }, active : true },
       });
   }
 
@@ -250,7 +253,7 @@ export class LoanService {
 
       if(dbLoan.length == 0){
         throw new NotFoundException(
-          await this.i18n.translate('loan.NOT_FOUND', {
+          await I18nContext.current().translate('loan.NOT_FOUND', {
               args: { id: loanId },
           })
       );
@@ -266,29 +269,29 @@ export class LoanService {
     const { amount, originProject, targetProject, receiptDate, returnDate } = updateLoanDto;
 
     try {
-      let dbLoan = await this.loanRepository.findOne(loanId);
+      let dbLoan = await this.loanRepository.findOne({ where: { id: loanId}});
 
       if(!dbLoan){
         throw new NotFoundException(
-          await this.i18n.translate('loan.NOT_FOUND', {
+          await I18nContext.current().translate('loan.NOT_FOUND', {
               args: { id: loanId },
           })
       );
       }
 
-      let dbOriginProject = await this.projectRepository.findOne(originProject);
+      let dbOriginProject = await this.projectRepository.findOne({ where: { id: originProject}});
         if (!dbOriginProject) {
           throw new NotFoundException(
-              await this.i18n.translate('project.NOT_FOUND', {
+              await I18nContext.current().translate('project.NOT_FOUND', {
                   args: { id: originProject },
               })
           );
         }
 
-        let dbTargetProject = await this.projectRepository.findOne(targetProject);
+        let dbTargetProject = await this.projectRepository.findOne({ where: { id: targetProject }});
         if (!dbTargetProject) {
           throw new NotFoundException(
-              await this.i18n.translate('project.NOT_FOUND', {
+              await I18nContext.current().translate('project.NOT_FOUND', {
                   args: { id: targetProject },
               })
           );
@@ -321,11 +324,11 @@ export class LoanService {
   async remove(loanId: number, auditEntry: AudityEntryDto) {
     
     try {
-      let dbLoan = await this.loanRepository.findOne(loanId);
+      let dbLoan = await this.loanRepository.findOne({ where: { id: loanId }});
 
       if(!dbLoan){
         throw new NotFoundException(
-          await this.i18n.translate('loan.NOT_FOUND', {
+          await I18nContext.current().translate('loan.NOT_FOUND', {
               args: { id: loanId },
           })
         );

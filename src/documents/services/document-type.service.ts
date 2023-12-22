@@ -37,7 +37,7 @@ export class DocumentTypeService {
     }
 
     async findById(id: number): Promise<DocumentType> {
-        return await this.documentTypeRepository.findOne(id, { relations: ['documentCategory']});
+        return await this.documentTypeRepository.findOne({ where: {id: id}, relations: ['documentCategory']});
     }
 
     async findByKey(_key: string): Promise<DocumentType> {

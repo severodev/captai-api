@@ -1,6 +1,5 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { classToPlain } from 'class-transformer';
-import { I18nRequestScopeService } from 'nestjs-i18n';
 import { Repository } from 'typeorm';
 import { AudityEntryDto } from '../../../audit/interface/audit-entry.dto';
 import { AuditService } from '../../../audit/service/audit.service';
@@ -11,6 +10,7 @@ import { UpdateContributionDto } from '../interfaces/update-contribution.dto';
 import * as moment from 'moment-business-days';
 import { BudgetTransferDto } from '../../../projects/interfaces/budget-transfer.dto';
 import { ProjectsService } from '../../../projects/services/projects.service';
+import { I18nContext } from 'nestjs-i18n';
 moment.locale('pt-br');
 
 @Injectable()
@@ -22,17 +22,16 @@ export class ContributionsService {
     @Inject('PROJECT_REPOSITORY')
     private projectRepository: Repository<Project>,
     private readonly projectService: ProjectsService,
-    private readonly i18n: I18nRequestScopeService,
     private readonly auditService: AuditService
   ){
 
   }
 
   async confirmContribution(contributionId: number, auditEntry: AudityEntryDto) {
-    const dbContribution = await this.contributionRepository.findOne(contributionId);
+    const dbContribution = await this.contributionRepository.findOne({ where: { id: contributionId }});
     if (!dbContribution) {
       throw new NotFoundException(
-          await this.i18n.translate('contribution.NOT_FOUND', {
+          await I18nContext.current().translate('contribution.NOT_FOUND', {
               args: { id: contributionId },
           })
       );
@@ -57,10 +56,10 @@ export class ContributionsService {
   }
 
   async contributionsReceivedInTableStyle(projectId : number) : Promise<any>{
-    const dbProject = await this.projectRepository.findOne(projectId);
+    const dbProject = await this.projectRepository.findOne({ where: { id: projectId }});
     if (!dbProject) {
       throw new NotFoundException(
-          await this.i18n.translate('project.NOT_FOUND', {
+          await I18nContext.current().translate('project.NOT_FOUND', {
               args: { id: projectId },
           })
       );
@@ -91,7 +90,7 @@ export class ContributionsService {
 
     
     const contributions = await this.contributionRepository.find({
-      where : { project : projectId, active : true, confirmationOfReceive: true }
+      where : { project : { id: projectId }, active : true, confirmationOfReceive: true }
     });
 
     contributions.map((contribution) => {
@@ -110,10 +109,10 @@ export class ContributionsService {
 
   async InformationAboutContributionsByProjectId(projectId : number) : Promise<any> {
 
-    const dbProject = await this.projectRepository.findOne(projectId);
+    const dbProject = await this.projectRepository.findOne({ where: { id: projectId }});
     if (!dbProject) {
       throw new NotFoundException(
-          await this.i18n.translate('project.NOT_FOUND', {
+          await I18nContext.current().translate('project.NOT_FOUND', {
               args: { id: projectId },
           })
       );
@@ -121,7 +120,7 @@ export class ContributionsService {
 
     const dbContributions = await this.contributionRepository.find({
       where : {
-        project : projectId,
+        project : { id: projectId },
         active : true
       }
     });
@@ -154,10 +153,10 @@ export class ContributionsService {
 
     const { amount, project, receiptDate, isTransfer, transferDate } = createContributionDto;
 
-    const dbProject = await this.projectRepository.findOne(project);
+    const dbProject = await this.projectRepository.findOne({ where: { id: project}});
     if (!dbProject) {
       throw new NotFoundException(
-          await this.i18n.translate('project.NOT_FOUND', {
+          await I18nContext.current().translate('project.NOT_FOUND', {
               args: { id: project },
           })
       );
@@ -194,10 +193,10 @@ export class ContributionsService {
   async findValueOfAllNotConfirmedContributionsByProjectId(projectId : number){
     try {
 
-      const dbProject = await this.projectRepository.findOne(projectId);
+      const dbProject = await this.projectRepository.findOne({ where: {id: projectId }});
       if (!dbProject) {
         throw new NotFoundException(
-            await this.i18n.translate('project.NOT_FOUND', {
+            await I18nContext.current().translate('project.NOT_FOUND', {
                 args: { id: projectId },
             })
         );
@@ -208,7 +207,7 @@ export class ContributionsService {
         where : {
           active : true,
           confirmationOfReceive : false,
-          project : projectId
+          project : { id: projectId }
         }
       })
 
@@ -229,10 +228,10 @@ export class ContributionsService {
   async findValueOfAllContributionsByProjectId(projectId : number) {
     try {
 
-      const dbProject = await this.projectRepository.findOne(projectId);
+      const dbProject = await this.projectRepository.findOne({ where: { id: projectId}});
       if (!dbProject) {
         throw new NotFoundException(
-            await this.i18n.translate('project.NOT_FOUND', {
+            await I18nContext.current().translate('project.NOT_FOUND', {
                 args: { id: projectId },
             })
         );
@@ -242,7 +241,7 @@ export class ContributionsService {
         relations : ['project'],
         where : {
           active : true,
-          project : projectId
+          project : { id: projectId}
         }
       })
 
@@ -263,10 +262,10 @@ export class ContributionsService {
   async findValueOfAllConfirmedContributionsByProjectId(projectId : number) {
     try {
 
-      const dbProject = await this.projectRepository.findOne(projectId);
+      const dbProject = await this.projectRepository.findOne({ where: { id: projectId}});
       if (!dbProject) {
         throw new NotFoundException(
-            await this.i18n.translate('project.NOT_FOUND', {
+            await I18nContext.current().translate('project.NOT_FOUND', {
                 args: { id: projectId },
             })
         );
@@ -277,7 +276,7 @@ export class ContributionsService {
         where : {
           active : true,
           confirmationOfReceive : true,
-          project : projectId
+          project : { id: projectId }
         }
       })
 
@@ -324,7 +323,7 @@ export class ContributionsService {
 
       if(dbContribution.length == 0){
         throw new NotFoundException(
-          await this.i18n.translate('contribution.NOT_FOUND', {
+          await I18nContext.current().translate('contribution.NOT_FOUND', {
               args: { id: contributionId },
           })
       );
@@ -338,37 +337,37 @@ export class ContributionsService {
 
   async findContributionsByProjectId(projectId: number) : Promise<Contribution[]> {
 
-    const dbProject = await this.projectRepository.findOne(projectId);
+    const dbProject = await this.projectRepository.findOne({ where: { id: projectId}});
     if (!dbProject) {
       throw new NotFoundException(
-          await this.i18n.translate('project.NOT_FOUND', {
+          await I18nContext.current().translate('project.NOT_FOUND', {
               args: { id: projectId },
           })
       );
     }
 
     return await this.contributionRepository.find({
-      where : { project : projectId, active : true }
+      where : { project : { id: projectId} , active : true }
     });
   }
 
   async update(contributionId: number, updateContributionDto: UpdateContributionDto, auditEntry: AudityEntryDto) {
     const { amount, project, receiptDate } = updateContributionDto;
 
-    const dbProject = await this.projectRepository.findOne(project);
+    const dbProject = await this.projectRepository.findOne({ where: { id: project}});
     if (!dbProject) {
       throw new NotFoundException(
-          await this.i18n.translate('project.NOT_FOUND', {
+          await I18nContext.current().translate('project.NOT_FOUND', {
               args: { id: project },
           })
       );
     }
 
-    let dbContribution = await this.contributionRepository.findOne(contributionId);
+    let dbContribution = await this.contributionRepository.findOne({ where: { id: contributionId}});
 
     if (!dbContribution) {
       throw new NotFoundException(
-          await this.i18n.translate('contribution.NOT_FOUND', {
+          await I18nContext.current().translate('contribution.NOT_FOUND', {
               args: { id: contributionId },
           })
       );
@@ -396,11 +395,11 @@ export class ContributionsService {
   }
 
   async remove(contributionId: number, auditEntry: AudityEntryDto) {
-    let dbContribution = await this.contributionRepository.findOne(contributionId);
+    let dbContribution = await this.contributionRepository.findOne({ where: { id: contributionId}});
 
     if (!dbContribution) {
       throw new NotFoundException(
-          await this.i18n.translate('contribution.NOT_FOUND', {
+          await I18nContext.current().translate('contribution.NOT_FOUND', {
               args: { id: contributionId },
           })
       );
@@ -427,38 +426,38 @@ export class ContributionsService {
   }
 
   async transferBetweenProjects(budgetTransferDto: BudgetTransferDto, auditEntry: AudityEntryDto) {
-    const donatingProject: Project = await this.projectRepository.findOne(budgetTransferDto.donatingProjectId, {relations:['institute']})
-    const receivingProject: Project = await this.projectRepository.findOne(budgetTransferDto.receivingProjectId, {relations:['institute']})
+    const donatingProject: Project = await this.projectRepository.findOne( { where: { id: budgetTransferDto.donatingProjectId }, relations:['institute']})
+    const receivingProject: Project = await this.projectRepository.findOne( { where: { id: budgetTransferDto.receivingProjectId } ,relations:['institute']})
         
     if (moment(moment.now()) < moment(donatingProject.end) ) {
       throw new BadRequestException(
-        await this.i18n.translate('contribution.PROJECT_NOT_YET_FINISHED', {
+        await I18nContext.current().translate('contribution.PROJECT_NOT_YET_FINISHED', {
             args: { date: donatingProject.end },
         }) 
     )
     }
     if (!donatingProject) {
         throw new NotFoundException(
-            await this.i18n.translate('contribution.DONATING_PROJECT_NOT_FOUND', {
+            await I18nContext.current().translate('contribution.DONATING_PROJECT_NOT_FOUND', {
                 args: { id: budgetTransferDto.donatingProjectId },
             }) 
         )
     }
     if (!receivingProject) {
         throw new NotFoundException(
-            await this.i18n.translate('contribution.RECEIVING_PROJECT_NOT_FOUND', {
+            await I18nContext.current().translate('contribution.RECEIVING_PROJECT_NOT_FOUND', {
                 args: { id: budgetTransferDto.receivingProjectId },
             }) 
         )
     }
     if (budgetTransferDto.donatedAmount > donatingProject.lastMargin) {
         throw new BadRequestException(
-            await this.i18n.translate('contribution.NOT_ENOUGH_MARGIN_FOR_TRANFER')
+            await I18nContext.current().translate('contribution.NOT_ENOUGH_MARGIN_FOR_TRANFER')
         )
     }
     if (donatingProject.institute.id != receivingProject.institute.id) {
         throw new BadRequestException(
-            await this.i18n.translate('contribution.TRANSFER_TO_DIFFERENT_INSTITUTE_NOT_ALLOWED')
+            await I18nContext.current().translate('contribution.TRANSFER_TO_DIFFERENT_INSTITUTE_NOT_ALLOWED')
         )
     }
 

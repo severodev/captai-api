@@ -39,7 +39,7 @@ export class LocationService {
     }
 
     async findCity(id: number): Promise<City> {
-        return await this.cityRepository.findOne(id);
+        return await this.cityRepository.findOne({ where: {id}});
     }
 
     async stateDropdown(country: number): Promise<StateDto[]> {
@@ -66,7 +66,7 @@ export class LocationService {
     }
 
     async findState(id: number): Promise<State> {
-        return await this.stateRepository.findOne(id);
+        return await this.stateRepository.findOne({ where: {id}});
     }
 
 }

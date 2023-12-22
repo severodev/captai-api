@@ -3,7 +3,6 @@ import { BadRequestException, Controller, Delete, Get, NotFoundException, Param,
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ApiTags } from '@nestjs/swagger';
 import * as filesize from "filesize";
-import { I18nRequestScopeService } from 'nestjs-i18n';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 import { FileManagementService } from '../../filemanagement/services/filemanagement.service';
 import { Roles } from '../../roles/roles.decorator';
@@ -14,6 +13,7 @@ import { DocumentDto } from '../interfaces/document.dto';
 import { DocumentTypeService } from '../services/document-type.service';
 import { DocumentsService } from '../services/documents.service';
 import { FileTypeService } from '../services/file-type.service';
+import { I18nContext } from 'nestjs-i18n';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Documents')
@@ -25,7 +25,6 @@ export class DocumentsController {
         private readonly documentTypeService: DocumentTypeService,
         private readonly fileTypeService: FileTypeService,
         private readonly fileManagementService: FileManagementService,
-        private readonly i18n: I18nRequestScopeService,
     ) { }
 
     @Get('type/dropdown')
@@ -49,8 +48,8 @@ export class DocumentsController {
         const maxSize = documentType.maxSize ? documentType.maxSize : parseInt(process.env.MAX_SIZE_UPLOAD);
         if (file.size > maxSize) {
             throw new BadRequestException(
-                await this.i18n.translate('document.VALIDATION.MAX_SIZE_EXCEDED', {
-                    args: { maxSize: filesize(maxSize) },
+                await I18nContext.current().translate('document.VALIDATION.MAX_SIZE_EXCEDED', {
+                    args: { maxSize: filesize.filesize(maxSize) },
                 })
             );
         }
@@ -84,7 +83,7 @@ export class DocumentsController {
         const document = await this.documentsService.findOne(id);
         if (!document) {
             throw new NotFoundException(
-                await this.i18n.translate('document.NOT_FOUND', {
+                await I18nContext.current().translate('document.NOT_FOUND', {
                     args: { id: id },
                 })
             );
@@ -95,7 +94,7 @@ export class DocumentsController {
             return await this.documentsService.delete(id);
         } else {
             throw new NotFoundException(
-                await this.i18n.translate('document.ERROR_DELETE_S3', {
+                await I18nContext.current().translate('document.ERROR_DELETE_S3', {
                     args: { id: document.id, url: document.url },
                 })
             );

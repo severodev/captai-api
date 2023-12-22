@@ -54,8 +54,12 @@ export class BenefitsService {
   async models(idER: number, idInstitute: number): Promise<Benefit[]> {
     const filters: FindManyOptions<BenefitModel> = {
       where: {        
-        institute: +idInstitute,
-        employmentRelationship: +idER
+        institute: {
+          id: +idInstitute
+        },
+        employmentRelationship: {
+          id: +idER
+        }
       },
       order: {
         benefitType: "ASC"
@@ -127,7 +131,7 @@ export class BenefitsService {
 
   async update(updateBenefitDto: BenefitDto, auditEntry: AudityEntryDto, i18n: I18nContext): Promise<BenefitDto> {
 
-    const dbEntity = await this.benefitsRepository.findOne(updateBenefitDto.id, {relations: ['collaborator', 'project', 'institute']});
+    const dbEntity = await this.benefitsRepository.findOne({ where: { id: updateBenefitDto.id }, relations: ['collaborator', 'project', 'institute']});
 
     if (!dbEntity) {
       throw new NotFoundException(
@@ -175,11 +179,12 @@ export class BenefitsService {
   async grantedTypes(idInstitute: number, idER: number): Promise<BenefitTypeDto[]> {
     const benefitsTypes = await this.benefitsTypeRepository.find({
       join: { alias: 'benefitType', innerJoin: { grant: 'benefitType.grants' } },
-      where: qb => {
-        qb.where({ active: true });
-        qb.andWhere('grant.institute = :_instituteId', { _instituteId: idInstitute });
-        qb.andWhere('grant.employmentRelationship = :_erId', { _erId: idER });
-      }
+      // TODO: update pending
+      // where: qb => {
+      //   qb.where({ active: true });
+      //   qb.andWhere('grant.institute = :_instituteId', { _instituteId: idInstitute });
+      //   qb.andWhere('grant.employmentRelationship = :_erId', { _erId: idER });
+      // }
     }
     );
     const benefits = benefitsTypes.map(b => <BenefitTypeDto>{
@@ -196,7 +201,7 @@ export class BenefitsService {
 
     let benefits:Benefit[] = await this.models(idEmploymentRelationship, idInstitute);
 
-    const payroll:PayRoll = idPayroll && idPayroll > 0 && await this.payrollRepository.findOne(idPayroll);
+    const payroll:PayRoll = idPayroll && idPayroll > 0 && await this.payrollRepository.findOne({ where: { id: idPayroll } });
     if(payroll && payroll.benefits){
       benefits = benefits.filter(nb => !payroll.benefits.find(pb => pb.benefitType.id == nb.benefitType.id));
     }

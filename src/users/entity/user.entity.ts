@@ -51,7 +51,7 @@ export class User {
   @JoinColumn({ name: 'id_profile' })
   profile: Profile;
  
-  @Transform(obj => obj.id)
+  @Transform(obj => obj.key)
   @OneToOne(type => Collaborator)
   @JoinColumn({ name: 'id_collaborator' })
   collaborator: Collaborator;

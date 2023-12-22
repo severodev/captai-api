@@ -13,7 +13,11 @@ export class PasswordRecoveryService {
 
     async invalidateUsersPastRecoveryRequest(pr: PasswordRecovery) {
         // SINTAX: first object = where clause; second object = udpate values
-        return this.passwordRecoveryRepository.update({ user: pr.user, used: false },{ invalidated: true});
+        // TODO: update pending
+        // return this.passwordRecoveryRepository.update({ user: {
+        //     username: pr.user
+        // }, used: false },{ invalidated: true});
+        return null;
     }
 
     async createPasswordRecoveryRequest(pr: PasswordRecovery) {

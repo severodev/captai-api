@@ -11,7 +11,7 @@ export class DocumentCategoryService {
     ) { }
 
     async findById(id: number): Promise<DocumentCategory> {
-        return await this.documentCategoryRepository.findOne(id);
+        return await this.documentCategoryRepository.findOne({ where: {id: id}});
     }
 
 }

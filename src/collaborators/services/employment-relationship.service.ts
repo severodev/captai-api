@@ -24,7 +24,7 @@ export class EmploymentRelationshipService {
   }
 
   async findOne(id: number): Promise<EmploymentRelationship> {
-    return await this.erRepository.findOne(id, {relations: ['benefits']});
+    return await this.erRepository.findOne({ where: { id: id }, relations: ['benefits']});
   }
 
 }

@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { classToPlain } from 'class-transformer';
-import { ExportToCsv } from 'export-to-csv';
+import { mkConfig, generateCsv, download } from "export-to-csv";
 import * as filesize from 'filesize';
 import * as moment from 'moment-business-days';
-import { I18nContext, I18nRequestScopeService } from 'nestjs-i18n';
+import { I18nContext } from 'nestjs-i18n';
 import { ProjectMemberService } from '../../projects/services/project-member.service';
 import { Brackets, FindManyOptions, Raw, Repository } from 'typeorm';
 import { Logger } from 'winston';
@@ -109,7 +109,6 @@ export class CollaboratorsService {
     private readonly notedDateService: NotedDateService,
     private readonly instituteService: InstitutesService,
     private readonly benefitService: BenefitsService,
-    private readonly i18n: I18nRequestScopeService,
     @Inject('winston')
     private readonly logger: Logger,
   ) { }
@@ -401,8 +400,10 @@ export class CollaboratorsService {
       headers: csvHeaders,
     };
 
-    const csvExporter = new ExportToCsv(options);
-    const reportContent = csvExporter.generateCsv(collaboratorsList, true);
+    // TODO: update to export-to-csv v1.2.2
+    // const csvExporter = new ExportToCsv(options);
+    // const reportContent = csvExporter.generateCsv(collaboratorsList, true);
+    const reportContent = "";
 
     const filename =
       moment().format('YYYYMMDDHHmmss_') +
@@ -444,7 +445,9 @@ export class CollaboratorsService {
   }
 
   async findOne(collaboratorId: number): Promise<Collaborator> {
-    return this.collaboratorsRepository.findOne(collaboratorId);
+    return this.collaboratorsRepository.findOne({where: {
+      id: collaboratorId
+    }});
   }
 
   async findByName(name: string) {
@@ -696,7 +699,7 @@ export class CollaboratorsService {
           url: d.url,
           icon: d.fileType.icon,
           iconHighContrast: d.fileType.iconHighContrast,
-          size: filesize(d.size),
+          size: filesize.filesize(d.size),
           documentType:
             d.documentType &&
             <DocumentTypeDto>{
@@ -735,7 +738,7 @@ export class CollaboratorsService {
 
   //   if (!dbProject) {
   //     throw new NotFoundException(
-  //       await this.i18n.translate('collaborator.NOT_FOUND', {
+  //       await I18nContext.current().translate('collaborator.NOT_FOUND', {
   //         args: { id: updateProjectDto.id },
   //       })
   //     );
@@ -784,7 +787,7 @@ export class CollaboratorsService {
 
     if (!dbCollaborator) {
       throw new NotFoundException(
-        await this.i18n.translate('collaborator.NOT_FOUND', {
+        await I18nContext.current().translate('collaborator.NOT_FOUND', {
           args: { id: updateCollaboratorDto.id },
         }),
       );
@@ -1035,7 +1038,7 @@ export class CollaboratorsService {
           url: d.url,
           icon: d.fileType.icon,
           iconHighContrast: d.fileType.iconHighContrast,
-          size: filesize(d.size),
+          size: filesize.filesize(d.size),
           documentType:
             d.documentType &&
             <DocumentTypeDto>{
@@ -1148,7 +1151,7 @@ export class CollaboratorsService {
             url: d.url,
             icon: d.fileType.icon,
             iconHighContrast: d.fileType.iconHighContrast,
-            size: filesize(d.size),
+            size: filesize.filesize(d.size),
             created: moment(d.created).format('DD/MM/YYYY [às] HH:mm'),
             documentType:
               d.documentType &&
@@ -1265,7 +1268,7 @@ export class CollaboratorsService {
                   <DocumentDto>{
                     id: dd.id,
                     filename: dd.filename,
-                    size: filesize(dd.size),
+                    size: filesize.filesize(dd.size),
                     created: moment(dd.created).format('DD/MM/YYYY [às] HH:mm'),
                     url: dd.url,
                     documentType:
@@ -1403,7 +1406,7 @@ export class CollaboratorsService {
 
     const dbReports = await this.collaboratorMonthlyReportRepository.find({
       where: {
-        collaborator: idCollaborator,
+        collaborator: { id: idCollaborator },
         year: current.year(),
         month: current.month() + 1,
       },
@@ -1430,8 +1433,8 @@ export class CollaboratorsService {
   ) {
     let dbReport = await this.collaboratorMonthlyReportRepository.findOne({
       where: {
-        collaborator: reportDto.idCollaborator,
-        project: reportDto.idProject,
+        collaborator: { id: reportDto.idCollaborator },
+        project: { id: reportDto.idProject },
         year: reportDto.year,
         month: reportDto.month,
       },
@@ -2295,7 +2298,11 @@ export class CollaboratorsService {
 
             // IRRF
             const irrfMap = await this.irrfRuleRepository.find({
-              where: { employmentRelationship: 6 /* RPA Bruto */ },
+              where: { 
+                employmentRelationship: {
+                  id: 6 /* RPA Bruto */ 
+                },
+              }
             });
             const irrfRange = irrfMap.find(
               r =>

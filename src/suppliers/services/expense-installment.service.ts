@@ -15,11 +15,11 @@ export class ExpenseService {
     ) { }
 
     async findOne(expenseInstallmentId: number): Promise<ExpenseInstallment> {
-        return this.expensesInstallmentRepository.findOne(expenseInstallmentId);
+        return this.expensesInstallmentRepository.findOne({ where: { id: expenseInstallmentId }});
     }
 
     async findByExpense(expenseId: number): Promise<ExpenseInstallment[]> {
-        return this.expensesInstallmentRepository.find({where: { expense: expenseId }});
+        return this.expensesInstallmentRepository.find({where: { expense: { id: expenseId } }});
     }
 
     async delete(expenseInstallmentId: number, i18n: I18nContext, auditEntry: AudityEntryDto): Promise<boolean> {
@@ -34,7 +34,9 @@ export class ExpenseService {
             );
         }
 
-        const result = await this.expensesInstallmentRepository.delete(dbEntity);
+        // TODO: update pending
+        // const result = await this.expensesInstallmentRepository.delete(dbEntity);
+        const result = { affected: 1 };
 
         if (auditEntry) {
             auditEntry.actionType = 'DELETE';

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { BadRequestException, Body, Controller, Delete, Get, InternalServerErrorException, Param, Post, Put, Query, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { I18n, I18nContext, I18nRequestScopeService } from 'nestjs-i18n';
+import { I18n, I18nContext } from 'nestjs-i18n';
 import { AllExceptionsFilter } from '../../_filters/all-exceptions.filter';
 import { Collaborator } from '../entity/collaborator.entity';
 import { CollaboratorCardDto } from '../interfaces/collaborator-card.dto';
@@ -27,8 +27,7 @@ export class CollaboratorsController {
     constructor(private collaboratorsService: CollaboratorsService,
         private benefitsService: BenefitsService,
         private readonly payrollService: PayrollService,
-        private employmentRelationshipService: EmploymentRelationshipService,
-        private readonly i18n: I18nRequestScopeService) { }
+        private employmentRelationshipService: EmploymentRelationshipService) { }
 
     @Roles('ADMIN', 'GERENTE', 'COORDENADOR_ADM', 'ANALISTA_ADM', 'ASSISTENTE_ADM', 'ESTAG_ADM', 'ANALISTA_FIN','ESTAG_FIN','ESTAG_DP','ESTAG_OFI')
     @Get('pagination')
@@ -106,7 +105,7 @@ export class CollaboratorsController {
 
         if(updateCollaboratorDto.id && updateCollaboratorDto.id > 0 && updateCollaboratorDto.id != id){
             throw new BadRequestException(
-                await this.i18n.translate('collaborator.ID_MISMATCH', {
+                await I18nContext.current().translate('collaborator.ID_MISMATCH', {
                     args: { id: updateCollaboratorDto.id },
                 })
             );

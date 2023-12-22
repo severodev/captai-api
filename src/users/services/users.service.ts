@@ -1,6 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, Raw, Repository } from 'typeorm';
-import { I18nRequestScopeService } from 'nestjs-i18n';
 import { UpdatePasswordDto } from '../../auth/interfaces/update-password.dto';
 import { RecoverPasswordDto } from '../../auth/interfaces/recover-password.dto';
 import { CollaboratorsService } from '../../collaborators/services/collaborators.service';
@@ -22,6 +21,7 @@ import { FirstAccess } from '../entity/first-access.entity';
 import { FirstAccessService } from './first-access.service';
 import { EmailService } from '../../email/email.service';
 import { ProfilesService } from '../../profiles/services/profiles.service';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class UsersService {
@@ -36,8 +36,7 @@ export class UsersService {
         private readonly collaboratorService: CollaboratorsService,
         private readonly passwordRecoveryService: PasswordRecoveryService,
         private readonly firstAccessService: FirstAccessService,
-        private readonly emailService: EmailService,
-        private readonly i18n: I18nRequestScopeService) { }
+        private readonly emailService: EmailService) { }
 
 
     async pagination(search: string, itemsPerPage = 10, isActive: boolean, _filters: any): Promise<PaginationMetadataDto> {
@@ -50,7 +49,8 @@ export class UsersService {
             const nameFilters = search.split(' ').map(s => {
                 return { name: Raw(alias => `${alias} ilike '%${s}%'`) };
             });
-            filters.where = nameFilters;
+            // TODO: update pending
+            // filters.where = nameFilters;
         }
 
         const totalItems = await this.usersRepository.count({ ...filters });
@@ -64,7 +64,7 @@ export class UsersService {
     }
 
     async findById(userId: number) {
-        return this.usersRepository.findOne(userId);
+        return this.usersRepository.findOne({ where: {id: userId}});
     }
 
     async findByUsername(username: string) {
@@ -83,7 +83,7 @@ export class UsersService {
             active: isActive,
         };
 
-        const filters: FindManyOptions<UserDto> = {
+        const filters: FindManyOptions<User> = {
             take: itemsPerPage,
             skip: (page > 0 ? page - 1 : 0) * itemsPerPage,
             where: {
@@ -163,11 +163,11 @@ export class UsersService {
     }
 
     async update(updateUserDto: UpdateUserDto, id: string, auditEntry: AudityEntryDto) {
-        const user = await this.usersRepository.findOne(id)
+        const user = await this.usersRepository.findOne({ where: { id: +id }})
 
         if (!user) {
             throw new NotFoundException(
-                await this.i18n.translate('user.NOT_FOUND', {
+                await I18nContext.current().translate('user.NOT_FOUND', {
                     args: { id: id },
                 })
             )
@@ -212,11 +212,11 @@ export class UsersService {
     }
 
     async delete(id: string, auditEntry: AudityEntryDto) {
-        const user = await this.usersRepository.findOne(id)
+        const user = await this.usersRepository.findOne({ where: { id: +id }})
 
         if (!user) {
             throw new NotFoundException(
-                await this.i18n.translate('user.NOT_FOUND', {
+                await I18nContext.current().translate('user.NOT_FOUND', {
                     args: { id: id },
                 })
             )
@@ -287,7 +287,7 @@ export class UsersService {
 
     async changePassword(changePasswordDto: ChangePasswordDto): Promise<boolean> {
 
-        const user = await this.usersRepository.findOne(changePasswordDto.userId);
+        const user = await this.usersRepository.findOne( {where: { id: changePasswordDto.userId } });
         user.password = await this.utilService.generateHash(changePasswordDto.newPassword);
 
         this.usersRepository.save(user);
@@ -295,7 +295,7 @@ export class UsersService {
     }
 
     async updateRefreshToken(userId: number, refreshToken: string) {
-        const user = await this.usersRepository.findOne(userId);
+        const user = await this.usersRepository.findOne( { where : {id: userId} });
         if (user) {
             user.refreshToken = refreshToken;
             this.usersRepository.save(user);

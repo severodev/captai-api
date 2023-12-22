@@ -12,7 +12,7 @@ export class BudgetCategoryService {
     ) { }
 
     async findById(id: number): Promise<BudgetCategory> {
-        return await this.budgetCategoryRepository.findOne(id);
+        return await this.budgetCategoryRepository.findOne({ where: { id: id}});
     }
 
     async dropdown(): Promise<BudgetCategoryDto[]> {

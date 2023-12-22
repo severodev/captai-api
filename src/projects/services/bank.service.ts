@@ -1,6 +1,5 @@
 import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { classToPlain } from 'class-transformer';
-import { I18nRequestScopeService } from 'nestjs-i18n';
 import { Repository } from "typeorm";
 import { AudityEntryDto } from '../../audit/interface/audit-entry.dto';
 import { AuditService } from '../../audit/service/audit.service';
@@ -8,6 +7,7 @@ import { Bank } from '../entity/bank.entity';
 import { BankDropdownDto } from '../interfaces/bank-dropdown.dto';
 import { BankDto } from '../interfaces/bank.dto';
 import { CreateBankDto } from '../interfaces/create-bank.dto';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class BankService {
@@ -16,7 +16,6 @@ export class BankService {
         @Inject('BANK_REPOSITORY')
         private bankRepository: Repository<Bank>,
         private readonly auditService: AuditService,
-        private readonly i18n: I18nRequestScopeService
     ) { }
 
     async dropdown(): Promise<BankDropdownDto[]> {
@@ -32,7 +31,7 @@ export class BankService {
     }
 
     async findOne(id: number): Promise<Bank> {
-        return this.bankRepository.findOne({ id });
+        return this.bankRepository.findOne({ where: { id: id} });
     }
 
     async create(createBankDto: CreateBankDto, auditEntry: AudityEntryDto): Promise<BankDto> {
@@ -63,11 +62,11 @@ export class BankService {
 
         if (!bankDto.id || bankDto.id <= 0) {
             throw new BadRequestException(
-                await this.i18n.translate('validation.MISSING_ID')
+                await I18nContext.current().translate('validation.MISSING_ID')
             );
         }
 
-        const dbEntity = await this.bankRepository.findOne(bankDto.id);
+        const dbEntity = await this.bankRepository.findOne({where: { id: bankDto.id}});
         dbEntity.name = bankDto.name;
         dbEntity.code = bankDto.code;
 
@@ -92,7 +91,7 @@ export class BankService {
 
         if (!bankId || bankId <= 0) {
             throw new BadRequestException(
-                await this.i18n.translate('validation.MISSING_ID')
+                await I18nContext.current().translate('validation.MISSING_ID')
             );
         }
 
@@ -100,7 +99,7 @@ export class BankService {
 
         if (!dbEntity) {
             throw new NotFoundException(
-                await this.i18n.translate('bank.NOT_FOUND', {
+                await I18nContext.current().translate('bank.NOT_FOUND', {
                     args: { id: bankId },
                 })
             );
@@ -125,7 +124,7 @@ export class BankService {
 
         if (!bankId || bankId <= 0) {
             throw new BadRequestException(
-                await this.i18n.translate('validation.MISSING_ID')
+                await I18nContext.current().translate('validation.MISSING_ID')
             );
         }
 
@@ -133,7 +132,7 @@ export class BankService {
 
         if (!dbEntity) {
             throw new NotFoundException(
-                await this.i18n.translate('bank.NOT_FOUND', {
+                await I18nContext.current().translate('bank.NOT_FOUND', {
                     args: { id: bankId },
                 })
             );

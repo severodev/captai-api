@@ -6,7 +6,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {});
 
-  app.use(helmet());
+  app.use(helmet.default());
 
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');

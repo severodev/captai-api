@@ -1,4 +1,5 @@
-import { HttpService, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpService } from "@nestjs/axios";
 import { Cron } from '@nestjs/schedule';
 import * as moment from 'moment-business-days';
 import 'moment/locale/pt-br';
@@ -56,7 +57,9 @@ export class InstituteReportService {
         const current = moment();
         const plan = await this.instituteMRPRepository.findOne({ where: { 
                 year: current.year(), month: current.month() + 1 ,
-                institute: project.institute.id
+                institute: {
+                    id: project.institute.id
+                }
             } 
         });
 
