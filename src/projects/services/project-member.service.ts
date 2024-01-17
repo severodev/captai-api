@@ -1,11 +1,11 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { classToPlain } from 'class-transformer';
-import { I18nRequestScopeService } from 'nestjs-i18n';
 import { PayrollService } from '../../collaborators/services/payroll.service';
 import { Repository } from "typeorm";
 import { AudityEntryDto } from '../../audit/interface/audit-entry.dto';
 import { AuditService } from '../../audit/service/audit.service';
 import { ProjectMember } from '../entity/project-member.entity';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class ProjectMemberService {
@@ -13,13 +13,12 @@ export class ProjectMemberService {
     constructor(
         @Inject('PROJECT_MEMBER_REPOSITORY')
         private projectMemberRepository: Repository<ProjectMember>,
-        private readonly i18n: I18nRequestScopeService,
         private readonly auditService: AuditService,
         private readonly payrollService : PayrollService
     ) { }
 
     async findOne(id: number) : Promise<ProjectMember> {
-        const result = await this.projectMemberRepository.findOne(id);
+        const result = await this.projectMemberRepository.findOne({ where: { id: id}});
         return result;
     }
     
@@ -45,7 +44,7 @@ export class ProjectMemberService {
 
         if (!dbProjectMember) {
             throw new NotFoundException(
-                await this.i18n.translate('project_member.NOT_FOUND', {
+                await I18nContext.current().translate('project_member.NOT_FOUND', {
                     args: { cid: collaboratorId },
                 })
             );
@@ -65,14 +64,14 @@ export class ProjectMemberService {
 
         let dbProjectMember = await this.projectMemberRepository.findOne({
             where: {
-                collaborator: collaboratorId,
-                project: projectId
+                collaborator: { id: collaboratorId },
+                project: { id: projectId }
             }
         });
 
         if (!dbProjectMember) {
             throw new NotFoundException(
-                await this.i18n.translate('project_member.NOT_FOUND', {
+                await I18nContext.current().translate('project_member.NOT_FOUND', {
                     args: { pid: projectId, cid: collaboratorId },
                 })
             );

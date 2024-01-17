@@ -210,7 +210,7 @@ export class SuppliersService {
     }
 
     async findOne(supplierId: number): Promise<Supplier> {
-        return this.suppliersRepository.findOne(supplierId);
+        return this.suppliersRepository.findOne({ where: { id: supplierId }});
     }
 
     async create(createSupplierDto: CreateSupplierDto, auditEntry: AudityEntryDto): Promise<SupplierCardDto> {
@@ -340,7 +340,7 @@ export class SuppliersService {
 
     async get(supplierId: number, i18n: I18nContext, auditEntry: AudityEntryDto): Promise<SupplierDto> {
 
-        let dbSupplier = await this.suppliersRepository.findOne(supplierId, {relations: ['state', 'city', 'bank', 'expenses', 'expenses.costShare', 'expenses.costShare.project', 'expenses.documents']});
+        let dbSupplier = await this.suppliersRepository.findOne({ where: { id: supplierId }, relations: ['state', 'city', 'bank', 'expenses', 'expenses.costShare', 'expenses.costShare.project', 'expenses.documents']});
 
         if (!dbSupplier) {
             throw new NotFoundException(

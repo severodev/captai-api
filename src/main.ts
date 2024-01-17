@@ -6,7 +6,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {});
 
-  app.use(helmet());
+  app.use(helmet.default());
 
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -21,8 +21,8 @@ async function bootstrap() {
   });
 
   const options = new DocumentBuilder()
-    .setTitle('CaptIA API')
-    .setDescription('CaptIA API.')
+    .setTitle('CaptAI API')
+    .setDescription('CaptAI API.')
     .setVersion('0.0.1')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },

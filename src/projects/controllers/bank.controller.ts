@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Req, UseFilters, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { I18nRequestScopeService } from 'nestjs-i18n';
 import { Roles } from '../../roles/roles.decorator';
 import { AllExceptionsFilter } from '../../_filters/all-exceptions.filter';
 import { BankDropdownDto } from '../interfaces/bank-dropdown.dto';
@@ -9,6 +8,7 @@ import { BankDto } from '../interfaces/bank.dto';
 import { CreateBankDto } from '../interfaces/create-bank.dto';
 import { BankService } from '../services/bank.service';
 import { JwtAuthGuard } from './../../auth/jwt-auth.guard';
+import { I18nContext } from 'nestjs-i18n';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Banks')
@@ -16,8 +16,7 @@ import { JwtAuthGuard } from './../../auth/jwt-auth.guard';
 @Controller('bank')
 export class BankController {
 
-    constructor(private readonly bankService: BankService,
-        private readonly i18n: I18nRequestScopeService) { }
+    constructor(private readonly bankService: BankService) { }
 
     @Get('dropdown')
     dropdown(): Promise<BankDropdownDto[]> {
@@ -46,7 +45,7 @@ export class BankController {
 
         if (bankDto.id && bankDto.id > 0 && bankDto.id !== id) {
             throw new BadRequestException(
-                await this.i18n.translate('bank.ID_MISMATCH', {
+                await I18nContext.current().translate('bank.ID_MISMATCH', {
                     args: { id: bankDto.id },
                 })
             );

@@ -1,12 +1,12 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import moment from "moment";
 import { utilities as nestWinstonModuleUtilities, WinstonModule } from 'nest-winston';
-import { I18nJsonLoader, I18nModule } from 'nestjs-i18n';
+import { AcceptLanguageResolver, HeaderResolver, I18nJsonLoader, I18nModule, QueryResolver } from 'nestjs-i18n';
 import * as path from 'path';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
@@ -89,24 +89,20 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
         },
       },
     }),
-    I18nModule.forRoot({
-      fallbackLanguage: 'pt',
-      fallbacks: {
-        'en-CA': 'en',
-        'en-*': 'en',
-        'pt-BR': 'pt',
-      },
-      loader: I18nJsonLoader,
-      parserOptions: {
-        path: __dirname + '/i18n/',
-        watch: true,
-      },
-      // resolvers: [
-      // { use: QueryResolver, options: ['lang', 'locale', 'l'] },
-      // new HeaderResolver(['x-custom-lang']),
-      // AcceptLanguageResolver,
-      // new CookieResolver(['lang', 'locale', 'l']),
-      // ],
+    I18nModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        fallbackLanguage: 'pt',
+        loaderOptions: {
+          path: path.join(__dirname, '/i18n/'),
+          watch: true,
+        },
+      }),
+      resolvers: [
+        { use: QueryResolver, options: ['lang'] },
+        AcceptLanguageResolver,
+        new HeaderResolver(['x-lang']),
+      ],
+      inject: [ConfigService],
     }),
     WinstonModule.forRoot({
       handleExceptions: true,
@@ -123,14 +119,14 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
           ),
         }),
         new winston.transports.DailyRotateFile({
-          filename: path.join('logs','captia-combined-%DATE%.log'),
+          filename: path.join('logs','captai-combined-%DATE%.log'),
           datePattern: 'DD-MMM-YYYY',
           level: 'debug',
           maxSize: '20m',
           format: winston.format.combine(winston.format.uncolorize()),
         }),
         new winston.transports.DailyRotateFile({
-          filename: path.join('logs', 'errors', 'captia-errors-%DATE%.log'),
+          filename: path.join('logs', 'errors', 'captai-errors-%DATE%.log'),
           datePattern: 'DD-MMM-YYYY',
           level: 'error',
           maxSize: '20m',

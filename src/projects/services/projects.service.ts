@@ -4,7 +4,7 @@ import { classToPlain, plainToClass } from 'class-transformer';
 import { diff } from 'deep-object-diff';
 import * as filesize from "filesize";
 import * as moment from 'moment';
-import { I18nContext, I18nRequestScopeService } from 'nestjs-i18n';
+import { I18nContext } from 'nestjs-i18n';
 import { BudgetCategoryDto } from '../../suppliers/interfaces/budget-category.dto';
 import { FindManyOptions, In, Raw, Repository } from "typeorm";
 import { EmploymentRelationshipDto } from '../../collaborators/interfaces/employment-relationship.dto';
@@ -61,7 +61,6 @@ export class ProjectsService {
         @Inject(forwardRef(() => ExpenseService))
         private readonly expenseService: ExpenseService,
         private readonly workplanService: WorkplanService,
-        private readonly i18n: I18nRequestScopeService,
         private readonly auditService: AuditService
     ) { }
 
@@ -567,7 +566,7 @@ export class ProjectsService {
 
     async updateProjectMargin(projectId: number): Promise<void> {
 
-        const project = await this.projectRepository.findOne(projectId);
+        const project = await this.projectRepository.findOne({ where: { id: projectId}});
 
         const totalExpenses = await this.expenseService.getTotalExpensesByProject(project.id, null, null);
 
@@ -643,7 +642,7 @@ export class ProjectsService {
 
         if (!dbProject) {
             throw new NotFoundException(
-                await this.i18n.translate('project.NOT_FOUND', {
+                await I18nContext.current().translate('project.NOT_FOUND', {
                     args: { id: projectId },
                 })
             );
@@ -657,7 +656,7 @@ export class ProjectsService {
             url: d.url,
             icon: d.fileType.icon,
             iconHighContrast: d.fileType.iconHighContrast,
-            size: filesize(d.size),
+            size: filesize.filesize(d.size),
             created: moment(d.created).format('DD/MM/YYYY [às] HH:mm'),
             documentType: d.documentType && <DocumentTypeDto>{
                 id: d.documentType.id,
@@ -772,7 +771,7 @@ export class ProjectsService {
 
         if (!dbProject) {
             throw new NotFoundException(
-                await this.i18n.translate('project.NOT_FOUND', {
+                await I18nContext.current().translate('project.NOT_FOUND', {
                     args: { id: updateProjectDto.id },
                 })
             );
@@ -804,14 +803,14 @@ export class ProjectsService {
             dbProject.institute = await this.instituteService.findOne(updateProjectDto.institute);
             if (!dbProject.institute) {
                 throw new NotFoundException(
-                    await this.i18n.translate('project.VALIDATION.INSTITUTE.NOT_FOUND', {
+                    await I18nContext.current().translate('project.VALIDATION.INSTITUTE.NOT_FOUND', {
                         args: { id: updateProjectDto.id },
                     })
                 );
             }
         } else {
             throw new BadRequestException(
-                await this.i18n.translate('project.VALIDATION.INSTITUTE.REQUIRED', {
+                await I18nContext.current().translate('project.VALIDATION.INSTITUTE.REQUIRED', {
                     args: { id: updateProjectDto.id },
                 })
             );
@@ -821,7 +820,7 @@ export class ProjectsService {
             dbProject.bank = await this.bankService.findOne(updateProjectDto.bank);
             if (!dbProject.bank) {
                 throw new NotFoundException(
-                    await this.i18n.translate('project.VALIDATION.BANK.NOT_FOUND', {
+                    await I18nContext.current().translate('project.VALIDATION.BANK.NOT_FOUND', {
                         args: { id: updateProjectDto.id },
                     })
                 );
@@ -961,7 +960,7 @@ export class ProjectsService {
 
         if (!dbProject) {
             throw new NotFoundException(
-                await this.i18n.translate('project.NOT_FOUND', {
+                await I18nContext.current().translate('project.NOT_FOUND', {
                     args: { id: projectId },
                 })
             );
@@ -988,7 +987,7 @@ export class ProjectsService {
 
         if (!dbProject) {
             throw new NotFoundException(
-                await this.i18n.translate('project.NOT_FOUND', {
+                await I18nContext.current().translate('project.NOT_FOUND', {
                     args: { id: projectId },
                 })
             );
@@ -1014,8 +1013,9 @@ export class ProjectsService {
         //  TODO:  error handling
         for (const pr of collaborator.payroll) {
 
-            const dbProject = await this.projectRepository.findOne(pr.project.id,
+            const dbProject = await this.projectRepository.findOne(
                 {
+                    where: { id: pr.project.id },
                     relations: ['projectMembers']
                 });
 
@@ -1045,8 +1045,10 @@ export class ProjectsService {
 
     async addProjectMember(createProjecyMemberDto: CreateProjectMemberDto): Promise<boolean> {
 
-        const dbProject = await this.projectRepository.findOne(createProjecyMemberDto.project,
-            {
+        const dbProject = await this.projectRepository.findOne(
+            { where: {
+                id: createProjecyMemberDto.project
+            },
                 relations: ['projectMembers']
             });
 

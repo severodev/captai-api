@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { I18nRequestScopeService } from 'nestjs-i18n';
+import { I18nContext } from 'nestjs-i18n';
 import { ProfilesService } from './../profiles/services/profiles.service';
 import { AudityEntryDto } from './../audit/interface/audit-entry.dto';
 import { AuthService } from './services/auth.service';
@@ -12,7 +12,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
     constructor(private reflector: Reflector,
         private readonly authSerice: AuthService,
         private readonly profileService: ProfilesService,
-        private readonly i18n: I18nRequestScopeService,
     ) {
         super();
     }
@@ -50,7 +49,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
         let canAccess = this.matchRoles(roles, [decodedToken.role]);
         if (!canAccess) {
             throw new ForbiddenException(
-                await this.i18n.translate('auth.PERMISSION_FORBIDDEN_ACTION')
+                await I18nContext.current().translate('auth.PERMISSION_FORBIDDEN_ACTION')
             );
         }
 
@@ -63,7 +62,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate {
         canAccess = await this.matchPermissions(permissions, decodedToken.profile);
         if (!canAccess) {
             throw new ForbiddenException(
-                await this.i18n.translate('auth.PERMISSION_FORBIDDEN_ACTION')
+                await I18nContext.current().translate('auth.PERMISSION_FORBIDDEN_ACTION')
             );
         }
 

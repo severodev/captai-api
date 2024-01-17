@@ -1,4 +1,5 @@
-import { forwardRef, HttpModule, Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { CollaboratorsModule } from '../collaborators/collaborators.module';
 import { DatabaseModule } from '../database/database.module';
 import { DocumentsModule } from '../documents/documents.module';

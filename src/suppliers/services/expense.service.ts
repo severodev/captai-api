@@ -3,7 +3,7 @@ import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/commo
 import { classToPlain } from 'class-transformer';
 import * as filesize from "filesize";
 import * as moment from 'moment';
-import { I18nContext, I18nRequestScopeService } from 'nestjs-i18n';
+import { I18nContext } from 'nestjs-i18n';
 import { Repository } from 'typeorm';
 import { AudityEntryDto } from '../../audit/interface/audit-entry.dto';
 import { AuditService } from '../../audit/service/audit.service';
@@ -47,11 +47,10 @@ export class ExpenseService {
         private readonly auditService: AuditService,
         @Inject(forwardRef(() => ProjectsService))
         private readonly projectService: ProjectsService,
-        private readonly i18n: I18nRequestScopeService
     ) { }
 
     async findOne(expenseId: number): Promise<Expense> {
-        return this.expensesRepository.findOne(expenseId);
+        return this.expensesRepository.findOne({where: { id: expenseId}});
     }
 
     async create(dto: CreateExpenseDto, auditEntry: AudityEntryDto): Promise<ExpenseDto> {
@@ -185,7 +184,7 @@ export class ExpenseService {
                 <DocumentDto>{
                     id: dd.id,
                     filename: dd.filename,
-                    size: filesize(dd.size),
+                    size: filesize.filesize(dd.size),
                     created: moment(dd.created).format('DD/MM/YYYY [às] HH:mm'),
                     url: dd.url,
                     documentType: dd.documentType && <DocumentTypeDto>{
@@ -273,7 +272,7 @@ export class ExpenseService {
         return <DocumentDto>{
             id: dd.id,
             filename: dd.filename,
-            size: filesize(dd.size),
+            size: filesize.filesize(dd.size),
             created: moment(dd.created).format('DD/MM/YYYY [às] HH:mm'),
             url: dd.url,
             documentType: dd.documentType && <DocumentTypeDto>{
@@ -299,7 +298,7 @@ export class ExpenseService {
             });
             if (!dbEntity) {
                 throw new NotFoundException(
-                    await this.i18n.translate('expense.NOT_FOUND', {
+                    await I18nContext.current().translate('expense.NOT_FOUND', {
                         args: { id: dto.id },
                     }),
                 );
@@ -432,7 +431,7 @@ export class ExpenseService {
                     <DocumentDto>{
                         id: dd.id,
                         filename: dd.filename,
-                        size: filesize(dd.size),
+                        size: filesize.filesize(dd.size),
                         created: moment(dd.created).format('DD/MM/YYYY [às] HH:mm'),
                         url: dd.url,
                         documentType: dd.documentType && <DocumentTypeDto>{
@@ -476,8 +475,8 @@ export class ExpenseService {
 
     async get(expenseId: number, i18n: I18nContext, auditEntry?: AudityEntryDto): Promise<ExpenseDto> {
 
-        const dbExpense = await this.expensesRepository.findOne(expenseId,
-            { relations: ['budgetCategory', 'supplier', 'costShare', 'costShare.project', 'documents', 'tripDetails', 'installments'] });
+        const dbExpense = await this.expensesRepository.findOne(
+            { where: { id: expenseId}, relations: ['budgetCategory', 'supplier', 'costShare', 'costShare.project', 'documents', 'tripDetails', 'installments'] });
 
         if (!dbExpense) {
             throw new NotFoundException(
@@ -515,7 +514,7 @@ export class ExpenseService {
             documents: dbExpense.documents && dbExpense.documents.map(dd => <DocumentDto>{
                 id: dd.id,
                 filename: dd.filename,
-                size: filesize(dd.size),
+                size: filesize.filesize(dd.size),
                 created: moment(dd.created).format('DD/MM/YYYY [às] HH:mm'),
                 url: dd.url,
                 documentType: dd.documentType && <DocumentTypeDto>{
@@ -588,7 +587,7 @@ export class ExpenseService {
             documents: dbEntity.documents && dbEntity.documents.map(dd => <DocumentDto>{
                 id: dd.id,
                 filename: dd.filename,
-                size: filesize(dd.size),
+                size: filesize.filesize(dd.size),
                 created: moment(dd.created).format('DD/MM/YYYY [às] HH:mm'),
                 url: dd.url,
                 documentType: dd.documentType && <DocumentTypeDto>{
@@ -736,10 +735,11 @@ export class ExpenseService {
         const dbExpenses = await this.expensesRepository.find({
             relations: ['installments'],            
             join: { alias: 'expenses', innerJoin: { installments: 'expenses.installments' } },
-            where: qb => {
-                qb.andWhere('installments.project IN (:_projectId)', { _projectId: projectId });
-                qb.andWhere('expenses.active = true');                
-            }
+            // TODO: update pending
+            // where: qb => {
+            //     qb.andWhere('installments.project IN (:_projectId)', { _projectId: projectId });
+            //     qb.andWhere('expenses.active = true');                
+            // }
         });
 
         if (!dbExpenses) {
@@ -837,7 +837,7 @@ export class ExpenseService {
 
         try{
 
-            const dbEntity = await this.expensesRepository.findOne(expenseId, { relations: [ 'installments' ]});
+            const dbEntity = await this.expensesRepository.findOne({where: { id: expenseId }, relations: [ 'installments' ]});
             if (!dbEntity) {
                 throw new NotFoundException(
                     await i18n.translate('expense.NOT_FOUND', {

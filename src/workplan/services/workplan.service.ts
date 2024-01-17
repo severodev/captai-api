@@ -1,7 +1,7 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { classToPlain } from 'class-transformer';
 import * as moment from 'moment-business-days';
-import { I18nContext, I18nRequestScopeService } from 'nestjs-i18n';
+import { I18nContext } from 'nestjs-i18n';
 import { Repository } from 'typeorm';
 import { AudityEntryDto } from '../../audit/interface/audit-entry.dto';
 import { AuditService } from '../../audit/service/audit.service';
@@ -54,14 +54,15 @@ export class WorkplanService {
         @Inject(forwardRef(() => ProjectsService))
         private readonly projectService: ProjectsService,
         private readonly auditService: AuditService,
-        private readonly i18n: I18nRequestScopeService
     ) { }
 
     async workplanPlannedByProject(projectId: number, i18n: I18nContext): Promise<any> {
         const dbProject = await this.projectService.findOne(projectId);
 
         const dbEntities = await this.workplanItemRepository.find({
-            where: { project: projectId, active: true },
+            where: { project: {
+                id: projectId
+            }, active: true },
             relations: ['project', 'wpiHR', 'wpiTrip', 'wpiTraining', 'wpiService',
                 'wpiEquipment', 'wpiSoftwareLicenses', 'wpiEquipmentAndSoftware','wpiSupplies',
                 'wpiBooksJournals', 'wpiCivilEngineering', 'wpiCorrelated', 'wpiInstituteCost', 'wpiFundPerMonth']
@@ -191,7 +192,7 @@ export class WorkplanService {
 
             if (totalWorkplanValue + dto.value > project.budget) {
                 throw new BadRequestException(
-                    await this.i18n.translate('workplan.VALIDATION.BUDGET_EXCEEDED')
+                    await I18nContext.current().translate('workplan.VALIDATION.BUDGET_EXCEEDED')
                 );
             }
         }
@@ -309,7 +310,7 @@ export class WorkplanService {
             case BudgetCategoryEnum.SOFTWARE_LICENSES: {
                 const wpiSoftwareLicenses = new WPISoftwareLicenses();
                 wpiSoftwareLicenses.softwareName = dto.wpiSoftwareLicenses.softwareName;
-                wpiSoftwareLicenses.validity = await this.validityRepository.findOne(dto.wpiSoftwareLicenses.validity);
+                wpiSoftwareLicenses.validity = await this.validityRepository.findOne({ where : { id: dto.wpiEquipmentAndSoftware.validity}});
                 wpiSoftwareLicenses.quantity = dto.wpiSoftwareLicenses.quantity;
                 wpiSoftwareLicenses.purchaseDate = dto.wpiSoftwareLicenses.purchaseDate && moment(dto.wpiSoftwareLicenses.purchaseDate, 'MM-YYYY').toDate();
 
@@ -321,7 +322,7 @@ export class WorkplanService {
                 wpiEquipmentAndSoftware.itemName = dto.wpiEquipmentAndSoftware.itemName;
                 wpiEquipmentAndSoftware.itemType = dto.wpiEquipmentAndSoftware.itemType;
                 wpiEquipmentAndSoftware.equipmentModel = dto.wpiEquipmentAndSoftware.equipmentModel;
-                wpiEquipmentAndSoftware.validity = await this.validityRepository.findOne(dto.wpiEquipmentAndSoftware.validity);
+                wpiEquipmentAndSoftware.validity = await this.validityRepository.findOne({ where : { id: dto.wpiEquipmentAndSoftware.validity}});
                 wpiEquipmentAndSoftware.quantity = dto.wpiEquipmentAndSoftware.quantity;
                 wpiEquipmentAndSoftware.purchaseDate = dto.wpiEquipmentAndSoftware.purchaseDate && moment(dto.wpiEquipmentAndSoftware.purchaseDate, 'MM-YYYY').toDate();
 
@@ -392,7 +393,7 @@ export class WorkplanService {
 
     async update(dto: WorkplanItemDto, auditEntry: AudityEntryDto): Promise<WorkplanItemDto> {
 
-        let dbEntity = await this.workplanItemRepository.findOne(dto.id, { relations: ['project'] });
+        let dbEntity = await this.workplanItemRepository.findOne({ where: {id: dto.id} , relations: ['project'] });
         dbEntity = await this.updateWPIEntityFromDto(dbEntity, dto);
 
         await this.workplanItemRepository.save(dbEntity);
@@ -511,7 +512,7 @@ export class WorkplanService {
             case BudgetCategoryEnum.SOFTWARE_LICENSES: {
                 const wpiSoftwareLicenses = new WPISoftwareLicenses();
                 wpiSoftwareLicenses.softwareName = dto.wpiSoftwareLicenses.softwareName;
-                wpiSoftwareLicenses.validity = await this.validityRepository.findOne(dto.wpiSoftwareLicenses.validity);
+                wpiSoftwareLicenses.validity = await this.validityRepository.findOne({ where: {id: dto.wpiSoftwareLicenses.validity}});
                 wpiSoftwareLicenses.quantity = dto.wpiSoftwareLicenses.quantity;
                 wpiSoftwareLicenses.purchaseDate = moment(dto.wpiSoftwareLicenses.purchaseDate, 'MM-YYYY').toDate();
 
@@ -523,7 +524,7 @@ export class WorkplanService {
                 wpiEquipmentAndSoftware.itemName = dto.wpiEquipmentAndSoftware.itemName;
                 wpiEquipmentAndSoftware.itemType = dto.wpiEquipmentAndSoftware.itemType;
                 wpiEquipmentAndSoftware.equipmentModel = dto.wpiEquipmentAndSoftware.equipmentModel;
-                wpiEquipmentAndSoftware.validity = await this.validityRepository.findOne(dto.wpiEquipmentAndSoftware.validity);
+                wpiEquipmentAndSoftware.validity = await this.validityRepository.findOne({ where: { id: dto.wpiEquipmentAndSoftware.validity}});
                 wpiEquipmentAndSoftware.quantity = dto.wpiEquipmentAndSoftware.quantity;
                 wpiEquipmentAndSoftware.purchaseDate = dto.wpiEquipmentAndSoftware.purchaseDate && moment(dto.wpiEquipmentAndSoftware.purchaseDate, 'MM-YYYY').toDate();
 
@@ -597,7 +598,9 @@ export class WorkplanService {
         try {
 
             const dbEntities = await this.workplanItemRepository.find({
-                where: { project: projectId, active: true },
+                where: { project: {
+                    id: projectId
+                }, active: true },
                 // relations: ['project'
                     //, 'project.projectMembers', 'wpiFundPerMonth',
                     // 'wpiHR', 'wpiTrip', 'wpiTraining', 'wpiService',
@@ -713,7 +716,6 @@ export class WorkplanService {
 
         _r.where('wpi.id = :wpiId', { wpiId: wpi.id });
 
-        // return await this.workplanItemRepository.findOne({where: { id: wpi.id }, relations: _relations});
         return await _r.getOne();
     }
 
@@ -896,7 +898,7 @@ export class WorkplanService {
 
     async delete(wpiId: number, i18n: I18nContext, auditEntry: AudityEntryDto): Promise<boolean> {
 
-        let dbEntity = await this.workplanItemRepository.findOne(wpiId);
+        let dbEntity = await this.workplanItemRepository.findOne({ where: { id: wpiId } });
 
         if (!dbEntity) {
             throw new NotFoundException(
@@ -923,7 +925,7 @@ export class WorkplanService {
 
     async activate(wpiId: number, i18n: I18nContext, auditEntry: AudityEntryDto): Promise<boolean> {
 
-        let dbEntity = await this.workplanItemRepository.findOne(wpiId);
+        let dbEntity = await this.workplanItemRepository.findOne({where : {id: wpiId}});
 
         if (!dbEntity) {
             throw new NotFoundException(

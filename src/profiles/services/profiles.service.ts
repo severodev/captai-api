@@ -1,8 +1,8 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { I18nRequestScopeService } from 'nestjs-i18n';
 import { Repository } from 'typeorm';
 import { Permission } from '../entity/permission.entity';
 import { Profile } from '../entity/profile.entity';
+import { I18nContext } from 'nestjs-i18n';
 
 @Injectable()
 export class ProfilesService {
@@ -10,7 +10,6 @@ export class ProfilesService {
     constructor(
         @Inject('PROFILE_REPOSITORY')
         private repository: Repository<Profile>,
-        private readonly i18n: I18nRequestScopeService,
     ) { }
 
     async getAll(): Promise<Profile[]> {
@@ -27,7 +26,7 @@ export class ProfilesService {
         });
 
         if (!profile) {
-            throw new NotFoundException(await this.i18n.translate('profile.NOT_FOUND'));
+            throw new NotFoundException(await I18nContext.current().translate('profile.NOT_FOUND'));
         }
 
         return profile;
@@ -40,7 +39,7 @@ export class ProfilesService {
         });
 
         if (!profile) {
-            throw new NotFoundException(await this.i18n.translate('profile.NOT_FOUND'));
+            throw new NotFoundException(await I18nContext.current().translate('profile.NOT_FOUND'));
         }
 
         return profile;

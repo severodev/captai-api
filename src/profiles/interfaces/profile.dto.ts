@@ -16,7 +16,7 @@ export class ProfileDto {
     title: string;
 
     @IsString()
-    @ApiProperty({ example: 'Administrador do CaptIA', description: 'Profile description' })
+    @ApiProperty({ example: 'Administrador do CaptAI', description: 'Profile description' })
     description: string;
 
 }

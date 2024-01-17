@@ -78,13 +78,13 @@ export class PayrollService {
   ): Promise<PayRollDto[]> {
     const filters: FindManyOptions<PayRoll> = {
       where: {
-        collaborator: idCollaborator,
+        collaborator: { id: idCollaborator },
       },
     };
 
     if (idsER && idsER.length > 0) {
       filters.where = {
-        collaborator: idCollaborator,
+        collaborator: { id: idCollaborator },
         employmentRelationship: In(idsER),
       };
     }
@@ -126,17 +126,7 @@ export class PayrollService {
     const payments: Payment[] = [];
 
     try {
-      // const result = await this.payrollRepository.find({
-      //   relations: [
-      //     'collaborator'
-      //     // 'employmentRelationship',
-      //     // 'budgetCategory',
-      //     // 'payments',
-      //     // 'payments.components',
-      //   ],
-      //   where: { project: idProject, active: true },
-      // });
-
+      
       const _r = this.paymentRepository
           .createQueryBuilder('payment')
           .innerJoinAndSelect('payment.components', 'components')
@@ -148,13 +138,6 @@ export class PayrollService {
           .andWhere('payroll.active = :active', { active: true });
 
       const result = await _r.getMany();
-
-      // if (result) {
-      //   for (const pRoll of result) {
-      //     pRoll.payments = await this.paymentRepository.find({ where: { payroll: pRoll.id }, relations: ["components"] });
-      //     payments.push(...pRoll.payments);
-      //   }
-      // }
 
       if (result) {
         payments.push(...result);
@@ -225,73 +208,6 @@ export class PayrollService {
       return null;
     }
   }
-
-  // async getPayrollSheetByProject(idProject: number): Promise<PaymentDto[]> {
-  //   const payments: Payment[] = [];
-
-  //   const result = await this.payrollRepository.find({
-  //     where: { project: idProject },
-  //     relations: [
-  //       'collaborator',
-  //       'employmentRelationship',
-  //       'budgetCategory',
-  //       'payments',
-  //       'payments.components',
-  //     ],
-  //   });
-
-  //   result &&
-  //     result.forEach(p => {
-  //       payments.push(...p.payments);
-  //     });
-
-  //   return (
-  //     payments &&
-  //     payments.map(p => {
-  //       const payroll = result.find(
-  //         r => r.payments.find(pp => pp.id == p.id) != null,
-  //       );
-
-  //       const collaboratorTotalPayments =
-  //         payroll &&
-  //         payroll.payments
-  //           .filter(_p => _p.year == p.year && _p.month == p.month)
-  //           .reduce((soma, pay) => {
-  //             return soma + pay.totalValue;
-  //           }, 0);
-  //       const totalPaymentsFixed = collaboratorTotalPayments
-  //         .toFixed(2)
-  //         .replace('.', ',');
-
-  //       return <PaymentDto>{
-  //         id: p.id,
-  //         year: p.year,
-  //         month: p.month,
-  //         totalValue: p.totalValue,
-  //         components: p.components.map(
-  //           pc =>
-  //             <PaymentComponentDto>{
-  //               id: pc.id,
-  //               type: pc.type,
-  //               value: pc.value,
-  //               leadCompensation: pc.leadCompensation,
-  //               description: pc.description
-  //             },
-  //         ),
-  //         budgetCategory: <BudgetCategoryDto>{
-  //           id: payroll.budgetCategory.id,
-  //           code: payroll.budgetCategory.code,
-  //           name: payroll.budgetCategory.name,
-  //         },
-  //         collaboratorInfo: `${payroll.collaborator.name} (${payroll.jobTitle}, ${payroll.employmentRelationship.name} - R$ ${totalPaymentsFixed})`,
-  //         collaborator: <CollaboratorDto> {
-  //           id: payroll.collaborator.id,
-  //           name: payroll.collaborator.name
-  //         }
-  //       };
-  //     })
-  //   );
-  // }
 
   async buildPayroll(pay: CreatePayRollDto): Promise<PayRoll> {
     const payroll = new PayRoll();
@@ -639,7 +555,11 @@ export class PayrollService {
 
           // IRRF
           const irrfMap = await this.irrfRuleRepository.find({
-            where: { employmentRelationship: 6 /* RPA Bruto */ },
+            where: { employmentRelationship: 
+              {
+                id: 6 /* RPA Bruto */ 
+              },
+            }
           });
           const irrfRange = irrfMap.find(
             r =>
@@ -929,7 +849,12 @@ export class PayrollService {
     idProject: number,
   ): Promise<PayRoll> {
     return this.payrollRepository.findOne({
-      where: { collaborator: idCollaborator, project: idProject },
+      where: { collaborator: {
+        id: idCollaborator
+      }, project: 
+      {
+        id: idProject   
+      } },
     });
   }
 
@@ -988,7 +913,7 @@ export class PayrollService {
   async changePayrollStatus(collaboratorId: number, functionCallingSecurity: string) {
     let dbPayroll = await this.payrollRepository.find({
       where: {
-        collaborator: collaboratorId,
+        collaborator: {id: collaboratorId},
       }
     });
 
@@ -1008,7 +933,7 @@ export class PayrollService {
     auditEntry: AudityEntryDto,
   ): Promise<boolean> {
     try {
-      const dbEntity = await this.paymentRepository.findOne(paymentId);
+      const dbEntity = await this.paymentRepository.findOne({ where: {id: paymentId}});
       if (!dbEntity) {
         throw new NotFoundException(
           await i18n.translate('payroll.PAYMENTS.NOT_FOUND', {
@@ -1032,7 +957,7 @@ export class PayrollService {
     auditEntry: AudityEntryDto,
   ): Promise<boolean> {
     try {
-      const dbEntities = await this.paymentRepository.find({ id: In(updateAllPaymentsStatusDto.paymentIds) });
+      const dbEntities = await this.paymentRepository.find({ where: { id: In(updateAllPaymentsStatusDto.paymentIds) } });
       if (dbEntities) {
         dbEntities.forEach(p => p.paid = updateAllPaymentsStatusDto.status);
         await this.paymentRepository.save(dbEntities);

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { BadRequestException, Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, Req, UseFilters, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { I18n, I18nContext, I18nRequestScopeService } from 'nestjs-i18n';
+import { I18n, I18nContext } from 'nestjs-i18n';
 import { AllExceptionsFilter } from '../../_filters/all-exceptions.filter';
 import { CreateProjectMemberDto } from '../interfaces/create-project-member.dto';
 import { CreateProjectDto } from '../interfaces/create-project.dto';
@@ -24,8 +24,8 @@ export class ProjectsController {
 
     constructor(
         private readonly projectsService: ProjectsService,
-        private readonly projectMemberService: ProjectMemberService,
-        private readonly i18n: I18nRequestScopeService) { }
+        private readonly projectMemberService: ProjectMemberService
+    ) { }
 
     @Roles('ADMIN', 'GERENTE', 'COORDENADOR_ADM', 'ANALISTA_ADM', 'ASSISTENTE_ADM', 'ESTAG_ADM', 'ANALISTA_FIN','ESTAG_FIN','ESTAG_DP','ESTAG_OFI')
     @ApiOperation({ summary: 'Returns projects pagination metadata' })
@@ -169,7 +169,7 @@ export class ProjectsController {
 
         if (updateProjectDto.id && updateProjectDto.id > 0 && updateProjectDto.id !== id) {
             throw new BadRequestException(
-                await this.i18n.translate('project.ID_MISMATCH', {
+                await I18nContext.current().translate('project.ID_MISMATCH', {
                     args: { id: updateProjectDto.id },
                 })
             );

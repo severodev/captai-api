@@ -9,6 +9,6 @@ export class AppService {
   }
 
   getVersion(): string {
-    return `CaptIA API ${process.env.API_VERSION}`;
+    return `CaptAI API ${process.env.API_VERSION}`;
   }
 }

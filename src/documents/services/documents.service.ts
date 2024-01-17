@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Document } from '../entity/document.entity';
 import { DocumentCategoryService } from './document-category.service';
 import { CreateDocumentDto } from '../interfaces/create-document.dto';
@@ -22,11 +22,11 @@ export class DocumentsService {
     ) { }
 
     async findOne(id: number): Promise<Document> {
-        return await this.documentRepository.findOne(id);
+        return await this.documentRepository.findOne({ where: {id}});
     }
 
     async findByIds(ids: number[]): Promise<Document[]> {
-        return await this.documentRepository.findByIds(ids, { relations: ['documentType', 'fileType']});
+        return await this.documentRepository.find({ where: { id: In(ids) }, relations: ['documentType', 'fileType']});
     }
     
     async create(createDocumentDto: CreateDocumentDto): Promise<DocumentDto> {
@@ -53,7 +53,7 @@ export class DocumentsService {
                 name: newDocument.fileType.name
             },
             filename: newDocument.filename,
-            size: filesize(newDocument.size),
+            size: filesize.filesize(newDocument.size),
             created: moment(newDocument.created).format('DD/MM/YYYY [às] HH:mm'),
             url: newDocument.url,
             icon: newDocument.fileType.icon,

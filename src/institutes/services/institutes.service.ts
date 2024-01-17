@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpService } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Institute } from './../entity/institute.entity';
 import { Repository } from 'typeorm';
 import { InstituteDropdownDto } from './../interfaces/institute-dropdown-dto';
@@ -24,6 +24,6 @@ export class InstitutesService {
     }
 
     async findOne(id: number) : Promise<Institute> {
-        return this.instituteRepository.findOne({id});
+        return this.instituteRepository.findOne({where : {id}});
     }
 }
