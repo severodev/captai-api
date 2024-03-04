@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm ci && npm run build
+RUN npm install --force && npm ci --force && npm run build
 
 FROM node:14.15.5-alpine3.11 AS prod
 
