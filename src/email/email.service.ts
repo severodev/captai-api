@@ -15,38 +15,21 @@ export class EmailService {
   async sendEmailPasswordRecoveryRequest(passwordRecovey: PasswordRecovery) {
     this.mailerService
       .sendMail({
-        to: 'severo@dellead.com',
+        to: passwordRecovey.user.email,
         from: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.FROM', {
           args: { email: 'captai@gmail.com' },
         }),
         subject: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.SUBJECT'),
-        template: 'password-recovery', // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+        template: '',
         context: {
-          // Data to be sent to template engine.
-          greetings: await I18nContext.current().translate(
-            'auth.EMAIL_PASSWORD_RECOVERY.BODY.GREETINGS',
-          ),
-          msg_1: await I18nContext.current().translate(
-            'auth.EMAIL_PASSWORD_RECOVERY.BODY.MSG_1_CONTEXT',
-          ),
-          msg_2: await I18nContext.current().translate(
-            'auth.EMAIL_PASSWORD_RECOVERY.BODY.MSG_2_INSTRUCTIONS',
-          ),
-          username: passwordRecovey.user.username,
+          username: passwordRecovey.user.name,
           token: passwordRecovey.token,
-          servicePath:
-            'http://localhost:3000/recoverPassword/' + passwordRecovey.token, // TODO : Get path from environment variable
-          button_label: await I18nContext.current().translate(
-            'auth.EMAIL_PASSWORD_RECOVERY.BODY.BUTTON_NEW_PASSWORD',
-          ),
-          msg_3: await I18nContext.current().translate(
-            'auth.EMAIL_PASSWORD_RECOVERY.BODY.MSG_3_DISREGARD',
-          ),
+          servicePath:`${process.env.WEB_APP_URL}/password-recovery/${passwordRecovey.token}`,
         },
       })
       .then(() => {
         // TODO: Centralize success mesaging and handling
-        // console.log('Sucesso ao enviar email');
+        //console.log('Sucesso ao enviar email');
       })
       .catch(err => {
         // TODO: Centralize success mesaging and handling
@@ -55,40 +38,51 @@ export class EmailService {
       });
   }
 
+  async sendEmailValidateEmail(firstAccess: FirstAccess) {
+    this.mailerService
+      .sendMail({
+        to: firstAccess.user.email,
+        from: 'Ativação de conta - CaptIA captai@gmail.com',
+        subject: 'Ativação de conta',
+        template: join(process.cwd(), 'src', 'templates', `validate-email`),
+        context: {
+          token: firstAccess.token,
+          username: firstAccess.user.name,
+          servicePath:`${process.env.WEB_APP_URL}/validate-email/${firstAccess.token}`,
+        },
+      })
+      .then(() => {
+        // TODO: Centralize success mesaging and handling
+        //console.log('Sucesso ao enviar email');
+      })
+      .catch(err => {
+        // TODO: Centralize success mesaging and handling
+        //console.error(`Erro ao enviar email de recuperação de senha para : ${firstAccess.user.email}`);
+        //console.error(err);
+      });
+  }
+
   async sendEmailFirstAccessRequest(firstAccess: FirstAccess) {
     this.mailerService
       .sendMail({
         to: firstAccess.user.email,
-        from: await I18nContext.current().translate('first_access.EMAIL_FIRST_ACCESS.FROM', {
+        from: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.FROM', {
           args: { email: 'captai@gmail.com' },
         }),
-        subject: await I18nContext.current().translate('first_access.EMAIL_FIRST_ACCESS.SUBJECT'),
-        template: join(process.cwd(), 'dist', 'templates', `first-access.pug`), // The `.pug`, `.ejs` or `.hbs` extension is appended automatically.
+        subject: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.SUBJECT'),
+        template: join(process.cwd(), 'src', 'templates', `password-recovery.pug`),
         context: {
-          // Data to be sent to template engine.
-          greetings: await I18nContext.current().translate(
-            'first_access.EMAIL_FIRST_ACCESS.BODY.GREETINGS',
-          ),
-          msg_1: await I18nContext.current().translate(
-            'first_access.EMAIL_FIRST_ACCESS.BODY.MSG_1_CONTEXT',
-          ),
-          msg_2: await I18nContext.current().translate(
-            'first_access.EMAIL_FIRST_ACCESS.BODY.MSG_2_INSTRUCTIONS',
-          ),
-          username: firstAccess.user.username,
+          username: firstAccess.user.name,
           token: firstAccess.token,
-          servicePath: `${process.env.WEB_APP_URL}/first-access/${firstAccess.token}`,
-          button_label: await I18nContext.current().translate(
-            'first_access.EMAIL_FIRST_ACCESS.BODY.BUTTON_NEW_PASSWORD',
-          ),
+          servicePath: `${process.env.WEB_APP_URL}/password-recovery/${firstAccess.token}`,
         },
       })
       .then(() => {
-        console.debug('Sucesso ao enviar email!');
+        //console.debug('Sucesso ao enviar email de recuperação de senha!');
       })
       .catch(err => {
-        console.error(`Erro ao enviar email de primeiro acesso para: ${firstAccess.user.email}`);
-        console.error(err);
+        //console.error(`Erro ao enviar email de recuperação de senha para: ${firstAccess.user.email}`);
+        //console.error(err);
       });
   }
 }

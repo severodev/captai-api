@@ -17,7 +17,7 @@ export class PasswordRecovery {
     @Column({ name: 'dt_creation', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     created: Date;
 
-    @Column({ name: 'dt_expiration', type: 'timestamp', default: () => "CURRENT_TIMESTAMP + '6 hour'" })
+    @Column({ name: 'dt_expiration', type: 'timestamp', default: () => "NOW() + INTERVAL '6 hour'" })
     expiration: Date;
 
     @Column({ name: 'st_used', type: 'bool', default: false })

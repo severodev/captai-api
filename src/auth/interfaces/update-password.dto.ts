@@ -1,6 +1,6 @@
 export class UpdatePasswordDto {
     token?: string;
-    username?: string;
+    email?: string;
     oldPassword?: string;
     newPassword: string;
 }

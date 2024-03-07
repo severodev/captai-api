@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { FindManyOptions, Raw, Repository } from 'typeorm';
 import { UpdatePasswordDto } from '../../auth/interfaces/update-password.dto';
 import { RecoverPasswordDto } from '../../auth/interfaces/recover-password.dto';
@@ -67,8 +67,8 @@ export class UsersService {
         return this.usersRepository.findOne({ where: {id: userId}});
     }
 
-    async findByUsername(username: string) {
-        return this.usersRepository.findOne({ where: { username: username } });
+    async findByEmail(email: string) {
+        return this.usersRepository.findOne({ where: { email: email } });
     }
 
     async findUsers(
@@ -106,62 +106,47 @@ export class UsersService {
         return this.usersRepository.find({ ...filters })
     }
 
-    async create(createUserDto: CreateUserDto, auditEntry: AudityEntryDto): Promise<UserDto> {
+    async create(createUserDto: CreateUserDto): Promise<UserDto> {
+        try {
+            if (await this.usersRepository.findOne({ where: { email: createUserDto.email} })) {
+                throw new Error('Email já utilizado.');
+            }
 
-        const newUser = new User();
-        newUser.active = true;
-        newUser.username = createUserDto.username;
-        newUser.password = await this.utilService.generateHash(createUserDto.username + new Date().getMilliseconds());
-        newUser.email = createUserDto.email;
+            if (await this.usersRepository.findOne({ where: { cpfCnpj: createUserDto.cpfCnpj} })) {
+                throw new Error('CPF/CNPJ já utilizado.');
+            }           
 
-        if (createUserDto.fullname) {
-            newUser.fullname = createUserDto.fullname;
+            const newUser = new User();
+            newUser.active = true;
+            newUser.name = createUserDto.name;
+            newUser.lastName = createUserDto.lastName;
+            newUser.acceptedPrivacyPolicy = createUserDto.acceptedPrivacyPolicy;
+            newUser.acceptedTermsOfUse = createUserDto.acceptedTermsOfUse;
+            newUser.password = await this.utilService.generateHash(createUserDto.password);
+            newUser.email = createUserDto.email;
+            newUser.cpfCnpj = createUserDto.cpfCnpj;
+    
+            if (createUserDto.language) {
+                newUser.language = createUserDto.language;
+            }
+            if (createUserDto.role) {
+                const role = await this.rolesService.findOne(createUserDto.role);
+                newUser.role = role;
+            }
+            if (createUserDto.profile) {
+                const profile = await this.profilesService.getByKey(createUserDto.profile);
+                newUser.profile = profile;
+            }
+            if (createUserDto.collaborator) {
+                newUser.collaborator = await this.collaboratorService.findOne(createUserDto.collaborator);
+            }
+            const savedUser = await this.usersRepository.save(newUser);
+            this.validateEmailRequest(savedUser);
+            return <UserDto> {};
+        } catch (error) {
+            throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
         }
-
-        if (createUserDto.language) {
-            newUser.language = createUserDto.language;
-        }
-        if (createUserDto.role) {
-            const role = await this.rolesService.findOne(createUserDto.role);
-            newUser.role = role;
-        }
-        if (createUserDto.profile) {
-            const profile = await this.profilesService.getByKey(createUserDto.profile);
-            newUser.profile = profile;
-        }
-        if (createUserDto.collaborator) {
-            newUser.collaborator = await this.collaboratorService.findOne(createUserDto.collaborator);
-        }
-        const savedUser = await this.usersRepository.save(newUser);
-
-        if (auditEntry) {
-            auditEntry.actionType = 'CREATE';
-            auditEntry.targetEntity = this.usersRepository.metadata.targetName;
-            auditEntry.targetTable = this.usersRepository.metadata.tableName;
-            auditEntry.targetEntityId = newUser.id;
-            auditEntry.targetEntityBody = JSON.stringify(
-                classToPlain(newUser),
-            );
-            this.auditService.audit(auditEntry);
-        }
-
-        await this.requestFirstAccess(savedUser);
-
-        return <UserDto>{
-            id: savedUser.id,
-            username: savedUser.username,
-            role: {
-                id: savedUser.role.id,
-                type: savedUser.role.type
-            }, // TODO: filter this information by role of the requester
-            profile: {
-                id: savedUser.profile.id,
-                key: savedUser.profile.key
-            },
-            collaborator: savedUser.collaborator && savedUser.collaborator.id ? savedUser.collaborator.id : null
-        };
     }
-
     async update(updateUserDto: UpdateUserDto, id: string, auditEntry: AudityEntryDto) {
         const user = await this.usersRepository.findOne({ where: { id: +id }})
 
@@ -173,8 +158,8 @@ export class UsersService {
             )
         }
 
-        user.username = updateUserDto.username
-        user.fullname = updateUserDto.fullname
+        user.name = updateUserDto.name
+        user.lastName = updateUserDto.lastName
         user.email = updateUserDto.email
         user.language = updateUserDto.language
 
@@ -203,8 +188,8 @@ export class UsersService {
 
         return <UpdateUserDto>{
             id: user.id,
-            username: user.username,
-            fullname: user.fullname,
+            name: user.name,
+            lastName: user.lastName,
             email: user.email,
             language: user.language,
             profile: user.profile.key,
@@ -244,14 +229,13 @@ export class UsersService {
     }
 
     async requestPasswordRecovery(recoverPasswordDto: RecoverPasswordDto): Promise<PasswordRecovery> {
-        const user = await this.findByUsername(recoverPasswordDto.username);
-        // console.log(user);
+        const user = await this.findByEmail(recoverPasswordDto.username);
 
         if (user) {
 
             const pr = new PasswordRecovery();
             pr.user = user;
-            pr.token = await this.utilService.generateHash(user.username + new Date().getMilliseconds());
+            pr.token = await this.utilService.generateHash(user.email + new Date().getMilliseconds());
 
             this.passwordRecoveryService.invalidateUsersPastRecoveryRequest(pr);
             this.passwordRecoveryService.createPasswordRecoveryRequest(pr);
@@ -262,10 +246,11 @@ export class UsersService {
 
             user.passwordRecovery.push(pr);
             await this.usersRepository.save(user);
-
+            this.requestFirstAccess(user);
             return pr;
+        } else {
+            throw new HttpException('Email não cadastrado', HttpStatus.BAD_REQUEST);
         }
-        return null;
     }
 
     async updatePasswordFromRecovery(updatePasswordDto: UpdatePasswordDto): Promise<boolean> {
@@ -306,7 +291,7 @@ export class UsersService {
         if (user) {
             const firstAccessRequest = new FirstAccess();
             firstAccessRequest.user = user;
-            const token = await (await this.utilService.generateHash(user.username + new Date().getMilliseconds()))
+            const token = await (await this.utilService.generateHash(user.email + new Date().getMilliseconds()))
             firstAccessRequest.token = token.replace(/[^a-zA-Z0-9 ]/g, '');
 
             this.firstAccessService.create(firstAccessRequest);
@@ -322,16 +307,47 @@ export class UsersService {
         }
     }
 
+    async validateEmailRequest(user: User): Promise<void> {
+        if (user) {
+            const firstAccessRequest = new FirstAccess();
+            firstAccessRequest.user = user;
+            const token = await (await this.utilService.generateHash(user.email + new Date().getMilliseconds()))
+            firstAccessRequest.token = token.replace(/[^a-zA-Z0-9 ]/g, '');
+
+            this.firstAccessService.create(firstAccessRequest);
+
+            if (!user.firstAccess) {
+                user.firstAccess = [];
+            }
+
+            user.firstAccess.push(firstAccessRequest);
+            await this.usersRepository.save(user);
+
+            this.emailService.sendEmailValidateEmail(firstAccessRequest);
+        }
+    }
+
     async createPasswordFirstAccess(createPasswordDto: CreatePasswordDto): Promise<boolean> {
         const firstAccessRequest = await this.firstAccessService.findByToken(createPasswordDto.token);
 
         if(firstAccessRequest) {
             firstAccessRequest.user.password = await this.utilService.generateHash(createPasswordDto.password);
+            firstAccessRequest.user.emailVerified = true;
             await this.usersRepository.save(firstAccessRequest.user);
             await this.firstAccessService.invalidateRequest(firstAccessRequest);
             return true;
         }
+        return false;
+    }
 
+    async validateEmail(token: string): Promise<boolean> {
+        const firstAccessRequest = await this.firstAccessService.findByToken(token);
+        if(firstAccessRequest) {
+            firstAccessRequest.user.emailVerified = true;
+            await this.usersRepository.save(firstAccessRequest.user);
+            await this.firstAccessService.invalidateRequest(firstAccessRequest);
+            return true;
+        }
         return false;
     }
 }
