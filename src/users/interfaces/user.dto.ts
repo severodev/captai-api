@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsString } from "class-validator";
+import { IsEmail, IsInt, IsString } from "class-validator";
 import { RoleDto } from "./../../roles/interfaces/role.dto";
 import { ProfileDto } from "../../profiles/interfaces/profile.dto";
 
@@ -10,8 +10,16 @@ export class UserDto {
     id: number;
 
     @IsString()
-    @ApiProperty({ example: 'colab01523', description: 'New user login (username)' })
-    username: string;
+    @ApiProperty({ example: 'Anderson', description: 'User last name for display purpose' })
+    name: string;
+
+    @IsString()
+    @ApiProperty({ example: 'Severo', description: 'User last name for display purpose' })
+    lastName?: string;
+
+    @IsEmail()
+    @ApiProperty({ example: 'exemple@domain.com', description: 'User email for notifications and login' })
+    email: string;
 
     @ApiProperty({ type: RoleDto })
     role?: RoleDto;
@@ -26,9 +34,4 @@ export class UserDto {
     @IsString()
     @ApiProperty({ example: 'pt-BR', description: 'User prefered language' })
     language?: number;
-
-    @IsString()
-    @ApiProperty({ example: 'pt-BR', description: 'User name' })
-    fullname?: string;
-
 }

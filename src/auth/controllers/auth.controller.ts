@@ -52,9 +52,7 @@ export class AuthController {
   })
   @Post('recoverPassword')
   @HttpCode(200)
-  async recoverPassword(
-    @Body() recoverPasswordDto: RecoverPasswordDto
-  ) {
+  async recoverPassword(@Body() recoverPasswordDto: RecoverPasswordDto) {
     const pr = await this.authService.requestPasswordRecovery(
       recoverPasswordDto,
     );

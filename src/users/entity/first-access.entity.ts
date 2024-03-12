@@ -17,7 +17,7 @@ export class FirstAccess {
   @Column({ name: 'dt_creation', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: Date;
 
-  @Column({ name: 'dt_expiration', type: 'timestamp', default: () => "CURRENT_TIMESTAMP + '72 hour'" })
+  @Column({ name: 'dt_expiration', type: 'timestamp', default: () => "NOW() + INTERVAL '72 hour'" })
   expiration: Date;
 
   @Column({ name: 'st_valid', type: 'bool', default: true })

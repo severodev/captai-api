@@ -24,9 +24,9 @@ export class AuthService {
         private readonly passwordRecoveryService: PasswordRecoveryService
     ) { }
 
-    async validateUser(username: string, pass: string): Promise<any> {
+    async validateUser(email: string, pass: string): Promise<any> {
 
-        const user: User = await this.usersService.findByUsername(username);
+        const user: User = await this.usersService.findByEmail(email);
         if (user) {
             const validCredentials = await this.verifyPassword(pass, user.password);
             if (validCredentials) {
@@ -39,18 +39,28 @@ export class AuthService {
         return null;
     }
 
-    async login(user: UserDto): Promise<LoginResultDto>  {
-        const payload = {
-            username: user.username, sub: user.id, fullname: user.fullname,
-            role: user.role.type, language: user.language, profile: user.profile?.key
-        };
-        return await this.generateTokens(payload);
+    async login(user: UserDto): Promise<LoginResultDto | HttpException> {
+        const userDb = await this.usersService.findByEmail(user.email);
+        if (userDb.emailVerified) {
+            const payload = {
+                name: user.name, 
+                sub: user.id, 
+                email: user.email,
+                lastName: user.lastName,
+                /* role: user.role.type,  */
+                language: user.language, 
+                /* profile: user.profile?.key */
+            };
+            return await this.generateTokens(payload);
+        } else {
+            return new UnauthorizedException('Email não verificado!');  
+        }
     }
 
     async refreshTokens(refreshTokenDto: RefreshTokenDto): Promise<LoginResultDto | HttpException> {
-        const user = await this.usersService.findByUsername(refreshTokenDto.username);
+        const user = await this.usersService.findByEmail(refreshTokenDto.email);
         if (user && refreshTokenDto.refreshToken === user.refreshToken) {
-            const payload = { username: user.username, sub: user.id };
+            const payload = { email: user.email, sub: user.id };
             return await this.generateTokens(payload);
         }
         return new UnauthorizedException('Falha ao atulizar reefresh token','Refresh token inválido ou inexistente');
@@ -76,7 +86,7 @@ export class AuthService {
 
     async updatePasswordWithCurrentPassword(updatePasswordDto: UpdatePasswordDto, i18n: I18nContext): Promise<boolean> {
 
-        const validUser = await this.validateUser(updatePasswordDto.username, updatePasswordDto.oldPassword);
+        const validUser = await this.validateUser(updatePasswordDto.email, updatePasswordDto.oldPassword);
         if(!validUser){
             throw new NotFoundException(
                 await i18n.translate('auth.CHANGE_PASSWORD_WRONG_CREDENTIALS')

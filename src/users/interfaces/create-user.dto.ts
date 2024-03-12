@@ -1,23 +1,35 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsString, IsEmail } from "class-validator";
+import { IsNumber, IsString, IsEmail, IsBoolean } from "class-validator";
 
 export class CreateUserDto {
 
     @IsString()
-    @ApiProperty({ example: 'colab01523', description: 'New user login (username)' })
-    username: string;
+    @ApiProperty({ example: 'name', description: 'User last name for display purpose' })
+    name: string;
+
+    @IsString()
+    @ApiProperty({ example: 'last name', description: 'User last name for display purpose' })
+    lastName?: string; 
+
+    @IsEmail()
+    @ApiProperty({ example: 'exemple@domain.com', description: 'User email for notifications and login' })
+    email: string;  
+
+    @IsString()
+    @ApiProperty({ example: '99999999999', description: 'User CPF or CNPJ' })
+    cpfCnpj: string;
 
     @IsString()
     @ApiProperty({ example: 'asd90SDKMs23sda_12', description: 'User password' })
-    password: string;   
+    password: string;
     
-    @IsString()
-    @ApiProperty({ example: 'Anderson Severo', description: 'User name for display purpose' })
-    fullname?: string;   
+    @IsBoolean()
+    @ApiProperty({ example: 'true', description: 'Veryfication' })
+    acceptedTermsOfUse : boolean;
 
-    @IsEmail()
-    @ApiProperty({ example: 'severo@dellead.com', description: 'User email for notifications' })
-    email: string;   
+    @IsBoolean()
+    @ApiProperty({ example: 'true', description: 'Veryfication' })
+    acceptedPrivacyPolicy : boolean;
 
     @IsNumber()
     @ApiProperty({ example: '1', description: 'Role ID' })

@@ -11,18 +11,21 @@ export class User {
   @PrimaryGeneratedColumn({ name: 'id_user' })
   id: number;
 
-  @Column({ name: 'ds_username', length: 50 })
-  username: string;
+  @Column({ name: 'ds_name', length: 50, nullable: true })
+  name: string;
+
+  @Column({ name: 'ds_last_name', length: 50, nullable: true })
+  lastName: string;
+
+ @Column({ name: 'ds_email', length: 150, default: '' })
+  email: string;
+
+  @Column({ name: 'ds_cpf_cnpj', length: 20, nullable: true})
+  cpfCnpj: string;
 
   @Exclude()
   @Column({ name: 'ds_password', length: 255 })
   password: string;
-
-  @Column({ name: 'ds_fullname', length: 100, nullable: true })
-  fullname: string;
-
-  @Column({ name: 'ds_email', length: 150, default: '' })
-  email: string;
 
   @Exclude()
   @Column({ name: 'ds_refresh_token', length: 255, nullable: true })
@@ -30,6 +33,15 @@ export class User {
 
   @Column({ name: 'st_active', type: 'bool', default: false })
   active: boolean;
+
+  @Column({ name: 'st_email_verified', type: 'bool', default: false })
+  emailVerified : boolean;
+
+  @Column({ name: 'st_terms_of_use_accepted', type: 'bool', default: true })
+  acceptedTermsOfUse : boolean;
+
+  @Column({ name: 'st_privacy_policy_accepted', type: 'bool', default: true })
+  acceptedPrivacyPolicy : boolean;
 
   @Column({ name: 'ds_language', default: 'pt_BR' })
   language: string;

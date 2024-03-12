@@ -11,6 +11,8 @@ import { UpdateUserDto } from '../interfaces/update-user.dto';
 import { UsersService } from '../services/users.service';
 import { Permissions } from '../../profiles/decorators/permissions.decorator';
 import { PermissionsEnum } from '../../profiles/enum/permissions.enum';
+import { RecoverPasswordDto } from 'src/auth/interfaces/recover-password.dto';
+import { tokenDto } from '../interfaces/token.dto';
 
 
 @ApiTags('Users')
@@ -56,13 +58,16 @@ export class UsersController {
     @ApiResponse({
         status: 200
     })
-    @UseGuards(JwtAuthGuard)
-    @Roles('ADMIN')
-    @Permissions(PermissionsEnum.USER_CREATE)
+
     @Post()
     register(@Req() req: any,  @Body() createUserDto: CreateUserDto) {
         
-        return this.usersService.create(createUserDto, req.auditEntry);
+        return this.usersService.create(createUserDto);
+    }
+
+    @Put('ChangePassword')
+    ChangePassword(@Body() username: RecoverPasswordDto) {
+        return this.usersService.requestPasswordRecovery(username);
     }
     
     @ApiBearerAuth()
@@ -96,5 +101,11 @@ export class UsersController {
     @Post('firstAccess')
     async createPasswordFirstAccess(@Body() createPasswordDto: CreatePasswordDto) {
         return this.usersService.createPasswordFirstAccess(createPasswordDto);
+    }
+
+    @ApiResponse({ status: 200 })
+    @Post('validate-email')
+    async validateEmail(@Body() token: tokenDto) {
+        return this.usersService.validateEmail(token.token);
     }
 }
