@@ -46,6 +46,7 @@ import { ContributionsModule } from './modules/contributions/contributions.modul
 import { LoanModule } from './modules/loan/loan.module';
 import { FirstAccessService } from './users/services/first-access.service';
 import { ProfilesModule } from './profiles/profiles.module';
+import { EditalModule } from './edital/edital.module';
 
 
 const { combine, timestamp, label, printf } = winston.format;
@@ -143,7 +144,8 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
     UtilModule,
     ContributionsModule,
     LoanModule,
-    ProfilesModule],
+    ProfilesModule,
+    EditalModule],
   controllers: [AppController, CollaboratorsController, RolesController, 
     UsersController, DocumentsController, ExpensesController],
   providers: [AppService, CollaboratorsService, RolesService, UsersService, UtilService, PayrollService,

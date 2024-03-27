@@ -43,13 +43,13 @@ export class AuthService {
         const userDb = await this.usersService.findByEmail(user.email);
         if (userDb.emailVerified) {
             const payload = {
+                id: user.id,
                 name: user.name, 
-                sub: user.id, 
-                email: user.email,
                 lastName: user.lastName,
-                /* role: user.role.type,  */
-                language: user.language, 
-                /* profile: user.profile?.key */
+                email: user.email,
+                role: user.role.type,
+                roleId: user.role.id,
+                language: user.language,
             };
             return await this.generateTokens(payload);
         } else {
