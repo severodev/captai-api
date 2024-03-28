@@ -17,10 +17,10 @@ export class EmailService {
       .sendMail({
         to: passwordRecovey.user.email,
         from: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.FROM', {
-          args: { email: 'captai@gmail.com' },
+          args: { email: process.env.MAILER_DEFAULT_FROM_MAIL },
         }),
         subject: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.SUBJECT'),
-        template: '',
+        template: join(process.cwd(), 'dist', 'templates', `password-recovery.pug`),
         context: {
           username: passwordRecovey.user.name,
           token: passwordRecovey.token,
@@ -29,7 +29,7 @@ export class EmailService {
       })
       .then(() => {
         // TODO: Centralize success mesaging and handling
-        //console.log('Sucesso ao enviar email');
+        console.log('Sucesso ao enviar email');
       })
       .catch(err => {
         // TODO: Centralize success mesaging and handling
@@ -42,9 +42,11 @@ export class EmailService {
     this.mailerService
       .sendMail({
         to: firstAccess.user.email,
-        from: 'Ativação de conta - CaptIA captai@gmail.com',
-        subject: 'Ativação de conta',
-        template: join(process.cwd(), 'src', 'templates', `validate-email`),
+        from: await I18nContext.current().translate('auth.EMAIL_ACCOUNT_ACTIVATION.FROM', {
+          args: { email: process.env.MAILER_DEFAULT_FROM_MAIL },
+        }),
+        subject: await I18nContext.current().translate('auth.EMAIL_ACCOUNT_ACTIVATION.SUBJECT'),
+        template: join(process.cwd(), 'dist', 'templates', `validate-email`),
         context: {
           token: firstAccess.token,
           username: firstAccess.user.name,
@@ -67,10 +69,10 @@ export class EmailService {
       .sendMail({
         to: firstAccess.user.email,
         from: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.FROM', {
-          args: { email: 'captai@gmail.com' },
+          args: { email: process.env.MAILER_DEFAULT_FROM_MAIL },
         }),
         subject: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.SUBJECT'),
-        template: join(process.cwd(), 'src', 'templates', `password-recovery.pug`),
+        template: join(process.cwd(), 'dist', 'templates', `password-recovery.pug`),
         context: {
           username: firstAccess.user.name,
           token: firstAccess.token,
@@ -78,11 +80,11 @@ export class EmailService {
         },
       })
       .then(() => {
-        //console.debug('Sucesso ao enviar email de recuperação de senha!');
+        console.debug('Sucesso ao enviar email de recuperação de senha!');
       })
       .catch(err => {
-        //console.error(`Erro ao enviar email de recuperação de senha para: ${firstAccess.user.email}`);
-        //console.error(err);
+        console.error(`Erro ao enviar email de recuperação de senha para: ${firstAccess.user.email}`);
+        console.error(err);
       });
   }
 }
