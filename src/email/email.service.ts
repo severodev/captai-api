@@ -17,10 +17,10 @@ export class EmailService {
       .sendMail({
         to: passwordRecovey.user.email,
         from: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.FROM', {
-          args: { email: 'captai@gmail.com' },
+          args: { email: process.env.MAILER_DEFAULT_FROM_MAIL },
         }),
         subject: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.SUBJECT'),
-        template: '',
+        template: join(process.cwd(), 'src', 'templates', `password-recovery.pug`),
         context: {
           username: passwordRecovey.user.name,
           token: passwordRecovey.token,
@@ -29,7 +29,7 @@ export class EmailService {
       })
       .then(() => {
         // TODO: Centralize success mesaging and handling
-        //console.log('Sucesso ao enviar email');
+        console.log('Sucesso ao enviar email');
       })
       .catch(err => {
         // TODO: Centralize success mesaging and handling
