@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "npm run clean && nest build",
+    "build": "npm run clean && nest build && npm run copy-templates",
     "clean": "rimraf dist",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "copy-templates": "cp -rv src/templates dist/templates/",
