@@ -78,11 +78,11 @@ export class EmailService {
         },
       })
       .then(() => {
-        //console.debug('Sucesso ao enviar email de recuperação de senha!');
+        console.debug('Sucesso ao enviar email de recuperação de senha!');
       })
       .catch(err => {
-        //console.error(`Erro ao enviar email de recuperação de senha para: ${firstAccess.user.email}`);
-        //console.error(err);
+        console.error(`Erro ao enviar email de recuperação de senha para: ${firstAccess.user.email}`);
+        console.error(err);
       });
   }
 }
