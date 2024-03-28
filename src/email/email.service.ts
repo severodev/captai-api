@@ -42,8 +42,10 @@ export class EmailService {
     this.mailerService
       .sendMail({
         to: firstAccess.user.email,
-        from: 'Ativação de conta - CaptIA captai@gmail.com',
-        subject: 'Ativação de conta',
+        from: await I18nContext.current().translate('auth.EMAIL_ACCOUNT_ACTIVATION.FROM', {
+          args: { email: process.env.MAILER_DEFAULT_FROM_MAIL },
+        }),
+        subject: await I18nContext.current().translate('auth.EMAIL_ACCOUNT_ACTIVATION.SUBJECT'),
         template: join(process.cwd(), 'dist', 'templates', `validate-email`),
         context: {
           token: firstAccess.token,
@@ -67,7 +69,7 @@ export class EmailService {
       .sendMail({
         to: firstAccess.user.email,
         from: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.FROM', {
-          args: { email: 'captai@gmail.com' },
+          args: { email: process.env.MAILER_DEFAULT_FROM_MAIL },
         }),
         subject: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.SUBJECT'),
         template: join(process.cwd(), 'dist', 'templates', `password-recovery.pug`),
