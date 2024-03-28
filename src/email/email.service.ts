@@ -20,7 +20,7 @@ export class EmailService {
           args: { email: process.env.MAILER_DEFAULT_FROM_MAIL },
         }),
         subject: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.SUBJECT'),
-        template: join(process.cwd(), 'src', 'app', 'dist', 'templates', `password-recovery.pug`),
+        template: join(process.cwd(), 'dist', 'templates', `password-recovery.pug`),
         context: {
           username: passwordRecovey.user.name,
           token: passwordRecovey.token,
@@ -44,7 +44,7 @@ export class EmailService {
         to: firstAccess.user.email,
         from: 'Ativação de conta - CaptIA captai@gmail.com',
         subject: 'Ativação de conta',
-        template: join(process.cwd(), 'src', 'app', 'dist', 'templates', `validate-email`),
+        template: join(process.cwd(), 'dist', 'templates', `validate-email`),
         context: {
           token: firstAccess.token,
           username: firstAccess.user.name,
@@ -70,7 +70,7 @@ export class EmailService {
           args: { email: 'captai@gmail.com' },
         }),
         subject: await I18nContext.current().translate('auth.EMAIL_PASSWORD_RECOVERY.SUBJECT'),
-        template: join(process.cwd(), 'src', 'app', 'dist', 'templates', `password-recovery.pug`),
+        template: join(process.cwd(), 'dist', 'templates', `password-recovery.pug`),
         context: {
           username: firstAccess.user.name,
           token: firstAccess.token,
