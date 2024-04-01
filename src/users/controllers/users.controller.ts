@@ -13,6 +13,7 @@ import { Permissions } from '../../profiles/decorators/permissions.decorator';
 import { PermissionsEnum } from '../../profiles/enum/permissions.enum';
 import { RecoverPasswordDto } from 'src/auth/interfaces/recover-password.dto';
 import { tokenDto } from '../interfaces/token.dto';
+import { UserFilter } from '../interfaces/user.filter';
 
 
 @ApiTags('Users')
@@ -24,22 +25,30 @@ export class UsersController {
     constructor(
         private readonly usersService: UsersService,
     ) { }
+    
+    @UseGuards(JwtAuthGuard)
+    @Roles('ADMIN')
+    @Get()
+    findAll(@Query() filter: UserFilter, @Query() pageOptions: PaginationMetadataDto): any {
+        return this.usersService.findAll(filter, pageOptions);
+    }
 
-    @Roles('ADMIN', 'GERENTE', 'COORDENADOR_ADM', 'ANALISTA_ADM', 'ASSISTENTE_ADM', 'ESTAG_ADM', 'ANALISTA_FIN','ESTAG_FIN','ESTAG_DP','ESTAG_OFI')
+    /* @Roles('ADMIN', 'GERENTE', 'COORDENADOR_ADM', 'ANALISTA_ADM', 'ASSISTENTE_ADM', 'ESTAG_ADM', 'ANALISTA_FIN','ESTAG_FIN','ESTAG_DP','ESTAG_OFI')
     @Permissions(PermissionsEnum.USER_LIST)
-    @Get('pagination')
+    @Get()
     async userPages(@Query('search') search: string,
         @Query('itemsPerPage') itemsPerPage = 10,
         @Query('isActive') isActive = true, @Query('filters') filters: any): Promise<PaginationMetadataDto> {
         return this.usersService.pagination(search, itemsPerPage, isActive, filters);
-    }
+    } */
 
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Get All Users' })
     @ApiResponse({
         status: 200
     })
-    @UseGuards(JwtAuthGuard)
+
+/*     @UseGuards(JwtAuthGuard)
     @Roles('ADMIN')
     @Permissions(PermissionsEnum.USER_LIST)
     @Get()
@@ -51,7 +60,7 @@ export class UsersController {
     @Query('isActive') isActive = true,
     @Query('filters') filters: any): Promise<User[]> {
         return this.usersService.findUsers(search, orderby, (desc && desc > 0), itemsPerPage, page, isActive, filters);
-    }
+    } */
 
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Creates a new user' })

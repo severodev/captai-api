@@ -21,6 +21,9 @@ export class UserDto {
     @ApiProperty({ example: 'exemple@domain.com', description: 'User email for notifications and login' })
     email: string;
 
+    @ApiProperty({ example: '00000000000', description: '' })
+    cpfCnpj?: number;
+
     @ApiProperty({ type: RoleDto })
     role?: RoleDto;
 

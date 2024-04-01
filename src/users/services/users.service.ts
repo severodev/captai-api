@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { FindManyOptions, Raw, Repository } from 'typeorm';
+import { FindManyOptions, Like, Raw, Repository } from 'typeorm';
 import { UpdatePasswordDto } from '../../auth/interfaces/update-password.dto';
 import { RecoverPasswordDto } from '../../auth/interfaces/recover-password.dto';
 import { CollaboratorsService } from '../../collaborators/services/collaborators.service';
@@ -22,6 +22,7 @@ import { FirstAccessService } from './first-access.service';
 import { EmailService } from '../../email/email.service';
 import { ProfilesService } from '../../profiles/services/profiles.service';
 import { I18nContext } from 'nestjs-i18n';
+import { UserFilter } from '../interfaces/user.filter';
 
 @Injectable()
 export class UsersService {
@@ -38,6 +39,29 @@ export class UsersService {
         private readonly firstAccessService: FirstAccessService,
         private readonly emailService: EmailService) { }
 
+        async findAll(filter: UserFilter, pageOptions : PaginationMetadataDto): Promise<User[]> {
+
+            const whereClause: any = {};
+
+            if (filter.name) {
+                whereClause.name = Like(`%${filter.name}%`);
+            }
+
+            if (filter.cpfCnpj) {
+                whereClause.cpfCnpj = filter.cpfCnpj;
+            }
+    
+            
+            if (filter.email) {
+                whereClause.email = filter.email;
+            }
+            let parameters : FindManyOptions<User> = { 
+                where : whereClause,
+                order: { name: 'ASC' },
+                take: pageOptions.itemsPerPage ? pageOptions.itemsPerPage : 999
+            }
+            return this.usersRepository.find(parameters);
+        }
 
     async pagination(search: string, itemsPerPage = 10, isActive: boolean, _filters: any): Promise<PaginationMetadataDto> {
         const filters: FindManyOptions<User> = {
