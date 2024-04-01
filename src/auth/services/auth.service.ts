@@ -47,6 +47,7 @@ export class AuthService {
                 name: user.name, 
                 lastName: user.lastName,
                 email: user.email,
+                cpfCnpj: user.cpfCnpj,
                 role: user.role.type,
                 roleId: user.role.id,
                 language: user.language,
