@@ -27,10 +27,19 @@ export class EditalsService {
         if (filter.financingValue) {
             whereClause.financingValue = filter.financingValue;
         }
+
+        let orderClause: {[key: string]: string} = {};
+
+        if (filter.by && filter.order) {
+            orderClause[filter.by] = filter.order;
+        } else {
+            orderClause['title'] = 'ASC';
+        }
+
         let parameters : FindManyOptions<edital> = { 
             where : whereClause,
-            order: { title: 'ASC' },
-            take: pageOptions.itemsPerPage ? pageOptions.itemsPerPage : 999
+            order: orderClause,
+            take: pageOptions.itemsPerPage ? pageOptions.itemsPerPage : 9999
         }
         return this.editalRepository.find(parameters);
     }
