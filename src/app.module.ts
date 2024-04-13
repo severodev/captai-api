@@ -47,7 +47,9 @@ import { LoanModule } from './modules/loan/loan.module';
 import { FirstAccessService } from './users/services/first-access.service';
 import { ProfilesModule } from './profiles/profiles.module';
 import { EditalModule } from './edital/edital.module';
-
+import { ImagekitController } from './imagekit/controllers/imagekit.controller';
+import { ImagekitService } from './imagekit/services/imagekit.service';
+import { ImageKitModule } from '@platohq/nestjs-imagekit';
 
 const { combine, timestamp, label, printf } = winston.format;
 
@@ -120,7 +122,7 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
           ),
         }),
         new winston.transports.DailyRotateFile({
-          filename: path.join('logs','captai-combined-%DATE%.log'),
+          filename: path.join('logs', 'captai-combined-%DATE%.log'),
           datePattern: 'DD-MMM-YYYY',
           level: 'debug',
           maxSize: '20m',
@@ -137,6 +139,11 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
       ],
       // other options
     }),
+    ImageKitModule.register({
+      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+      privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
+    }),
     ScheduleModule.forRoot(),
     AuthModule, UsersModule, UtilModule, CollaboratorsModule, RolesModule,
     InstitutesModule, ProjectModule, S3Module, FileManagementModule,
@@ -146,9 +153,9 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
     LoanModule,
     ProfilesModule,
     EditalModule],
-  controllers: [AppController, CollaboratorsController, RolesController, 
-    UsersController, DocumentsController, ExpensesController],
-  providers: [AppService, CollaboratorsService, RolesService, UsersService, UtilService, PayrollService,
+  controllers: [AppController, CollaboratorsController, RolesController,
+    UsersController, DocumentsController, ExpensesController, ImagekitController],
+  providers: [AppService, CollaboratorsService, RolesService, UsersService, UtilService, PayrollService, ImagekitService,
     ExpenseService, PasswordRecoveryService, EmailService, ProjectsService, FirstAccessService, WorkplanService, {
       provide: 'MomentWrapper',
       useValue: moment
