@@ -46,6 +46,9 @@ export class User {
   @Column({ name: 'ds_language', default: 'pt_BR' })
   language: string;
 
+  @Column({ name: 'ds_profile_image_id', length: 50, nullable: true})
+  profileImageId: string;
+
   @Exclude()
   @Column({ name: 'dt_creation', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: number;
