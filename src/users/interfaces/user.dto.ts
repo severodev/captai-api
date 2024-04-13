@@ -37,4 +37,12 @@ export class UserDto {
     @IsString()
     @ApiProperty({ example: 'pt-BR', description: 'User prefered language' })
     language?: number;
+
+    @IsString()
+    @ApiProperty({ example: '661a9d9588c257da334ab957', description: 'User profile image ID' })
+    profileImageId?: string;
+
+    @IsString()
+    @ApiProperty({ example: 'https://ik.imagekit.io/captirecursos24/captir/profile/default_profile_img_mAJF09ccs.jpg', description: 'User profile image URL' })
+    profileImageUrl?: string;
 }

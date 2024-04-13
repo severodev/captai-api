@@ -13,6 +13,8 @@ import { LocalStrategy } from './local.strategy';
 import { UtilModule } from '../util/util.module';
 import { ProfilesModule } from '../profiles/profiles.module';
 import { ProfilesService } from '../profiles/services/profiles.service';
+import { ImageKitModule } from '@platohq/nestjs-imagekit';
+import { ImagekitService } from 'src/imagekit/services/imagekit.service';
 
 
 
@@ -34,7 +36,7 @@ import { ProfilesService } from '../profiles/services/profiles.service';
         },
       }),
     }),],
-  providers: [AuthService, UtilService, PasswordRecoveryService, LocalStrategy, JwtStrategy, EmailService, ProfilesService],
+  providers: [AuthService, UtilService, PasswordRecoveryService, LocalStrategy, JwtStrategy, EmailService, ProfilesService, ImagekitService],
   exports: [AuthService, ProfilesService],
   controllers: [AuthController]
 })

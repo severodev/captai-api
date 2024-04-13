@@ -374,4 +374,12 @@ export class UsersService {
         }
         return false;
     }
+
+    async updateProfileImage(userId: number, imageId: string) {
+        const user = await this.usersRepository.findOne( { where : {id: userId} });
+        if (user) {
+            user.profileImageId = imageId;
+            this.usersRepository.save(user);
+        }
+    }
 }
