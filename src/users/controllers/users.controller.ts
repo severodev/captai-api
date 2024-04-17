@@ -29,7 +29,7 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     @Roles('ADMIN')
     @Get()
-    findAll(@Query() filter: UserFilter, @Query() pageOptions: PaginationMetadataDto): any {
+    findAll(@Query() filter: UserFilter, @Query() pageOptions: PaginationMetadataDto): Promise<User[]> {
         return this.usersService.findAll(filter, pageOptions);
     }
 
@@ -81,15 +81,12 @@ export class UsersController {
     
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Updates a user' })
-    @ApiResponse({
-        status: 200
-    })
+    @ApiResponse({ status: 200 })
     @UseGuards(JwtAuthGuard)
     @Roles('ADMIN')
-    @Permissions(PermissionsEnum.USER_EDIT)
     @Put(':id')
-    update(@Req() req: any, @Body() updateUserDto: UpdateUserDto, @Param('id') id: string) {
-        return this.usersService.update(updateUserDto, id, req.auditEntry);
+    update(@Body() updateUserDto: UpdateUserDto, @Param('id') id: string) {
+        return this.usersService.update(updateUserDto, id);
     }
  
     @ApiBearerAuth()

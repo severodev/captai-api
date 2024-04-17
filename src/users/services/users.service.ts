@@ -14,7 +14,6 @@ import { ChangePasswordDto } from '../../auth/interfaces/change-password.dto';
 import { UpdateUserDto } from '../interfaces/update-user.dto';
 import { AudityEntryDto } from '../../audit/interface/audit-entry.dto';
 import { AuditService } from './../../audit/service/audit.service';
-import { classToPlain } from 'class-transformer';
 import { PaginationMetadataDto } from '../../util/interfaces/pagination-metadata.dto';
 import { CreatePasswordDto } from '../../users/interfaces/create-password.dto';
 import { FirstAccess } from '../entity/first-access.entity';
@@ -40,27 +39,39 @@ export class UsersService {
         private readonly emailService: EmailService) { }
 
         async findAll(filter: UserFilter, pageOptions : PaginationMetadataDto): Promise<User[]> {
+            let whereClause: any = {};
+            let orderClause: {[key: string]: string} = {};
 
-            const whereClause: any = {};
-
-            if (filter.name) {
-                whereClause.name = Like(`%${filter.name}%`);
+            if (filter.id) {
+                whereClause.id = filter.id;
             }
-
+            if (filter.name) {
+                whereClause = [
+                    { name: Like(`%${filter.name}%`) },
+                    { lastName: Like(`%${filter.name}%`) }
+                ];
+            }
             if (filter.cpfCnpj) {
                 whereClause.cpfCnpj = filter.cpfCnpj;
             }
-    
-            
             if (filter.email) {
                 whereClause.email = filter.email;
             }
+            if (filter.roleId) {
+                whereClause.role = await this.rolesService.findOne(filter.roleId);
+            }
+
+            if (filter.by && filter.order) {
+                orderClause[filter.by] = filter.order;
+            } 
+
             let parameters : FindManyOptions<User> = { 
                 where : whereClause,
-                order: { name: 'ASC' },
+                order: orderClause,
                 take: pageOptions.itemsPerPage ? pageOptions.itemsPerPage : 999
             }
-            return this.usersRepository.find(parameters);
+            
+            return await this.usersRepository.find(parameters);
         }
 
     async pagination(search: string, itemsPerPage = 10, isActive: boolean, _filters: any): Promise<PaginationMetadataDto> {
@@ -171,9 +182,9 @@ export class UsersService {
             throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
         }
     }
-    async update(updateUserDto: UpdateUserDto, id: string, auditEntry: AudityEntryDto) {
+    async update(updateUserDto: UpdateUserDto, id: string) {
         const user = await this.usersRepository.findOne({ where: { id: +id }})
-
+        let userReference : User;
         if (!user) {
             throw new NotFoundException(
                 await I18nContext.current().translate('user.NOT_FOUND', {
@@ -181,13 +192,28 @@ export class UsersService {
                 })
             )
         }
-
+        
+        if (updateUserDto.email) {
+            userReference =  await this.usersRepository.findOne({ where: { email: updateUserDto.email} });
+            if (userReference && userReference.id != user.id) {
+                throw new Error('Email já utilizado.');
+            }
+        }
+        
+        if (updateUserDto.cpfCnpj) {
+            userReference = await this.usersRepository.findOne({ where: { cpfCnpj: updateUserDto.cpfCnpj} })
+            if (userReference && userReference.id != user.id) {
+                throw new Error('CPF/CNPJ já utilizado.');
+            } 
+        }
+        
         user.name = updateUserDto.name
         user.lastName = updateUserDto.lastName
         user.email = updateUserDto.email
-        user.language = updateUserDto.language
+        user.cpfCnpj = updateUserDto.cpfCnpj
+        //user.language = updateUserDto.language
 
-        if (updateUserDto.collaborator) {
+       /*if (updateUserDto.collaborator) {
             user.collaborator = await this.collaboratorService.findOne(updateUserDto.collaborator)
         }
         if (updateUserDto.role) {
@@ -195,28 +221,15 @@ export class UsersService {
         }
         if (updateUserDto.profile) {
             user.profile = await this.profilesService.getByKey(updateUserDto.profile)
-        }
+        } */
         this.usersRepository.save(user)
-
-        if (auditEntry) {
-            auditEntry.actionType = 'UPDATE';
-            auditEntry.targetEntity = this.usersRepository.metadata.targetName;
-            auditEntry.targetTable = this.usersRepository.metadata.tableName;
-            auditEntry.targetEntityId = user.id;
-            auditEntry.targetEntityBody = JSON.stringify(
-                classToPlain(user),
-            );
-            this.auditService.audit(auditEntry);
-        }
-
 
         return <UpdateUserDto>{
             id: user.id,
             name: user.name,
             lastName: user.lastName,
             email: user.email,
-            language: user.language,
-            profile: user.profile.key,
+            cpfCnpj: user.cpfCnpj
         }
     }
 

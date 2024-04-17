@@ -32,4 +32,16 @@ export class edital {
 
   @Column({ name: 'dt_created_at', type: 'timestamp', nullable: true })
   created: number;
+
+  @Column({ name: 'ds_edital_number', nullable: true })
+  editalNumber: string;
+
+  @Column({ name: 'ds_trl_level', nullable: true })
+  maturityLevel: string;
+
+  @Column({ name: 'dt_file_date', type: 'timestamp', nullable: true })
+  fileDate: number;
+
+  @Column({ name: 'nm_file_version', nullable: true })
+  fileVersion: number;
 } 

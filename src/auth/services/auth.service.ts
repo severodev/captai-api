@@ -27,11 +27,9 @@ export class AuthService {
     ) { }
 
     async validateUser(email: string, pass: string): Promise<any> {
-
         const user: User = await this.usersService.findByEmail(email);
         if (user) {
-            // const validCredentials = await this.verifyPassword(pass, user.password);
-            const validCredentials = true;
+            const validCredentials = await this.verifyPassword(pass, user.password);
             if (validCredentials) {
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { password, ...otherUserFileds } = user;
@@ -54,8 +52,8 @@ export class AuthService {
                 role: user.role.type,
                 roleId: user.role.id,
                 language: user.language,
-                profileImageId: user.profileImageId,
-                profileImageUrl: await this.imagekitService.getFileUrl(user.profileImageId)
+                profileImageId: user.profileImageId ?  user.profileImageId : null,
+                profileImageUrl: user.profileImageId ? await this.imagekitService.getFileUrl(user.profileImageId) : null 
             };
             return await this.generateTokens(payload);
         } else {
