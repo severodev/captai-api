@@ -54,8 +54,8 @@ export class AuthService {
                 role: user.role.type,
                 roleId: user.role.id,
                 language: user.language,
-                profileImageId: user.profileImageId,
-                profileImageUrl: await this.imagekitService.getFileUrl(user.profileImageId)
+                profileImageId: user.profileImageId ?  user.profileImageId : null,
+                profileImageUrl: user.profileImageId ? await this.imagekitService.getFileUrl(user.profileImageId) : null 
             };
             return await this.generateTokens(payload);
         } else {

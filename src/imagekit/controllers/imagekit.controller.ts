@@ -26,8 +26,8 @@ export class ImagekitController {
     }
 
     @Get('fileUrl')
-    getFile(@Query('fileId') fileId: string, @Query('thumbnail') thumbnail: string): Promise<string> {
-        return this.imagekitService.getFileUrl(fileId, thumbnail);
+    async getFile(@Query('fileId') fileId: string, @Query('thumbnail') thumbnail: string): Promise<any> {
+        return { url: await this.imagekitService.getFileUrl(fileId, thumbnail) };
     }
 
     @Post('updateProfileImage')

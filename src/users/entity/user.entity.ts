@@ -56,7 +56,6 @@ export class User {
   @Column({ name: 'dt_last_update', type: 'timestamp', nullable: true })
   lastUpdate: number;
 
-  @Transform(obj => obj.type)
   @ManyToOne(type => Role, { eager: true })
   @JoinColumn({ name: 'id_role' })
   role: Role;

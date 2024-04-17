@@ -20,6 +20,10 @@ export class UpdateUserDto {
     role?: number;
 
     @IsString()
+    @ApiProperty({ example: '00000000000', description: 'User CPF/CNPJ for display purpose' })
+    cpfCnpj?: string; 
+
+    @IsString()
     @ApiProperty({ example: 'ADMIN', description: 'Profile Key' })
     profile?: string;
 
@@ -31,3 +35,4 @@ export class UpdateUserDto {
     @ApiProperty({ example: 'pt_BR', description: 'User prefered language' })
     language?: string;
 }
+

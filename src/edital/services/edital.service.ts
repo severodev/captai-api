@@ -32,9 +32,7 @@ export class EditalsService {
 
         if (filter.by && filter.order) {
             orderClause[filter.by] = filter.order;
-        } else {
-            orderClause['title'] = 'ASC';
-        }
+        } 
 
         let parameters : FindManyOptions<edital> = { 
             where : whereClause,
