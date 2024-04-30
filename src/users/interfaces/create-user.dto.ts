@@ -46,4 +46,16 @@ export class CreateUserDto {
     @IsString()
     @ApiProperty({ example: 'pt_BR', description: 'User prefered language' })
     language?: string;
+
+    @IsString()
+    @ApiProperty({ example: 'não defiinido.', description: 'não defiinido.' })
+    segment?: number;
+
+    @IsString()
+    @ApiProperty({ example: 'não defiinido.', description: 'não defiinido.' })
+    abrangency?: number[];
+
+    @IsString()
+    @ApiProperty({ example: 'não defiinido.', description: 'não defiinido.' })
+    activite?: number[];
 }

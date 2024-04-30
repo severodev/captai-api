@@ -1,10 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToOne, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToOne, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Role } from '../../roles/role.entity';
 import { Profile } from '../../profiles/entity/profile.entity';
 import { Collaborator } from '../../collaborators/entity/collaborator.entity';
 import { PasswordRecovery } from './password-recovery.entity';
 import { Exclude, Transform, Type } from 'class-transformer';
 import { FirstAccess } from './first-access.entity';
+import { Segment } from 'src/segment/entity/segment.entity';
+import { State } from 'src/location/entity/state.entity';
+import { Activite } from 'src/activities/entity/Activite.entity';
 
 @Entity({ name: 'tb_user' })
 export class User {
@@ -80,4 +83,35 @@ export class User {
   @JoinColumn()
   firstAccess: FirstAccess[];
 
+  @ManyToOne(type => Segment, { eager: true })
+  @JoinColumn({ name: 'id_segment' })
+  segment: Segment;
+
+  @ManyToMany(() => State, state => state.User, { eager: true })
+  @JoinTable({
+    name: 'tb_user_abrangency',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id'
+    },
+    inverseJoinColumn: {
+      name: 'state_id',
+      referencedColumnName: 'id'
+    }
+  })
+  abrangency: State[];
+
+  @ManyToMany(() => Activite, activite => activite.User, { eager: true })
+  @JoinTable({
+    name: 'tb_user_activites',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id'
+    },
+    inverseJoinColumn: {
+      name: 'activite_id',
+      referencedColumnName: 'id'
+    }
+  })
+  activite: Activite[];
 }

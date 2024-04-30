@@ -22,6 +22,9 @@ import { EmailService } from '../../email/email.service';
 import { ProfilesService } from '../../profiles/services/profiles.service';
 import { I18nContext } from 'nestjs-i18n';
 import { UserFilter } from '../interfaces/user.filter';
+import { LocationService } from 'src/location/service/location.service';
+import { SegmentService } from 'src/segment/services/segment.service';
+import { ActivitesService } from 'src/activities/services/activite.service';
 
 @Injectable()
 export class UsersService {
@@ -36,7 +39,10 @@ export class UsersService {
         private readonly collaboratorService: CollaboratorsService,
         private readonly passwordRecoveryService: PasswordRecoveryService,
         private readonly firstAccessService: FirstAccessService,
-        private readonly emailService: EmailService) { }
+        private readonly emailService: EmailService,
+        private readonly locationService: LocationService,
+        private readonly activitesService: ActivitesService,
+        private readonly segmentService: SegmentService) { }
 
         async findAll(filter: UserFilter, pageOptions : PaginationMetadataDto): Promise<User[]> {
             let whereClause: any = {};
@@ -160,7 +166,40 @@ export class UsersService {
             newUser.password = await this.utilService.generateHash(createUserDto.password);
             newUser.email = createUserDto.email;
             newUser.cpfCnpj = createUserDto.cpfCnpj;
-    
+
+            if (createUserDto.abrangency) {
+                newUser.abrangency = await this.locationService.findAllStates({
+                    ids: createUserDto.abrangency,
+                    name: null,
+                    abbreviation: null,
+                    country: null,
+                    by: null,
+                    order: null
+                },
+                {  
+                    itemsPerPage: 99999, 
+                    totalPages: 9999,
+                    currentPage: 0
+                });
+            }
+
+            if (createUserDto.activite) {
+                newUser.activite = await this.activitesService.findAll({
+                    ids: createUserDto.activite,
+                    name: null,
+                    by: null,
+                    order: null
+                },
+                {   
+                    itemsPerPage: 99999, 
+                    totalPages: 9999,
+                    currentPage: 0
+                });
+            }
+
+            if (createUserDto.segment) {
+                newUser.segment = await this.segmentService.findOne(createUserDto.segment);
+            }
             if (createUserDto.language) {
                 newUser.language = createUserDto.language;
             }
@@ -211,6 +250,37 @@ export class UsersService {
         user.lastName = updateUserDto.lastName
         user.email = updateUserDto.email
         user.cpfCnpj = updateUserDto.cpfCnpj
+
+        if (updateUserDto.abrangency) {
+            user.abrangency = await this.locationService.findAllStates({
+                ids: updateUserDto.abrangency,
+                name: null,
+                abbreviation: null,
+                country: null,
+                by: null,
+                order: null
+            }, 
+            {   itemsPerPage: 99999, 
+                totalPages: 9999,
+                currentPage: 0
+            });
+        }
+
+        if (updateUserDto.activite) {
+            user.activite = await this.activitesService.findAll({
+                ids: updateUserDto.activite,
+                name: null,
+                by: null,
+                order: null
+            },{   itemsPerPage: 99999, 
+                totalPages: 9999,
+                currentPage: 0});
+        }
+
+        if (updateUserDto.segment) {
+            user.segment = await this.segmentService.findOne(updateUserDto.segment);
+        }
+
         //user.language = updateUserDto.language
 
        /*if (updateUserDto.collaborator) {

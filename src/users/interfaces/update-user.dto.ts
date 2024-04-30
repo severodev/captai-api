@@ -34,5 +34,13 @@ export class UpdateUserDto {
     @IsString()
     @ApiProperty({ example: 'pt_BR', description: 'User prefered language' })
     language?: string;
-}
 
+    @IsNumber()
+    segment?: number;
+
+    @IsNumber()
+    abrangency?: number[];
+
+    @IsNumber()
+    activite?: number[];
+}

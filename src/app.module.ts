@@ -47,6 +47,9 @@ import { LoanModule } from './modules/loan/loan.module';
 import { FirstAccessService } from './users/services/first-access.service';
 import { ProfilesModule } from './profiles/profiles.module';
 import { EditalModule } from './edital/edital.module';
+import { ActiviteModule } from './activities/activite.module';
+import { SegmentModule } from './segment/segment.module';
+import { SegmentService } from './segment/services/segment.service';
 import { ImagekitController } from './imagekit/controllers/imagekit.controller';
 import { ImagekitService } from './imagekit/services/imagekit.service';
 import { ImageKitModule } from '@platohq/nestjs-imagekit';
@@ -152,10 +155,12 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
     ContributionsModule,
     LoanModule,
     ProfilesModule,
-    EditalModule],
+    EditalModule,
+    ActiviteModule,
+    SegmentModule],
   controllers: [AppController, CollaboratorsController, RolesController,
     UsersController, DocumentsController, ExpensesController, ImagekitController],
-  providers: [AppService, CollaboratorsService, RolesService, UsersService, UtilService, PayrollService, ImagekitService,
+  providers: [AppService, CollaboratorsService, RolesService, UsersService, UtilService, PayrollService, ImagekitService, SegmentService,
     ExpenseService, PasswordRecoveryService, EmailService, ProjectsService, FirstAccessService, WorkplanService, {
       provide: 'MomentWrapper',
       useValue: moment

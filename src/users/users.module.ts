@@ -14,11 +14,15 @@ import { UtilModule } from '../util/util.module';
 import { FirstAccessService } from './services/first-access.service';
 import { firstAccessProviders } from './prroviders/first-access.providers';
 import { EmailService } from '../email/email.service';
+import { SegmentModule } from '../segment/segment.module';
+import { SegmentService } from '../segment/services/segment.service';
+import { ActiviteModule } from '../activities/activite.module';
+import { ActivitesService } from '../activities/services/activite.service';
 
 @Module({
-  imports: [DatabaseModule, CollaboratorsModule, RolesModule, UtilModule],
+  imports: [DatabaseModule, CollaboratorsModule, RolesModule, SegmentModule, UtilModule, ActiviteModule],
   providers: [...usersProviders, ...passwordRecoveryProviders, ...firstAccessProviders, 
-    UsersService, PasswordRecoveryService, UtilService, CollaboratorsService, RolesService, FirstAccessService, EmailService],
+    UsersService, PasswordRecoveryService, UtilService, CollaboratorsService, RolesService, FirstAccessService, EmailService, SegmentService, ActivitesService],
   controllers: [UsersController],
   exports: [...usersProviders, ...passwordRecoveryProviders, ...firstAccessProviders, UsersService]
 })
