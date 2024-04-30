@@ -2,6 +2,9 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsInt, IsString } from "class-validator";
 import { RoleDto } from "./../../roles/interfaces/role.dto";
 import { ProfileDto } from "../../profiles/interfaces/profile.dto";
+import { Segment } from "src/segment/entity/segment.entity";
+import { State } from "src/location/entity/state.entity";
+import { Activite } from "src/activities/entity/Activite.entity";
 
 export class UserDto {
 
@@ -45,4 +48,13 @@ export class UserDto {
     @IsString()
     @ApiProperty({ example: 'https://ik.imagekit.io/captirecursos24/captir/profile/default_profile_img_mAJF09ccs.jpg', description: 'User profile image URL' })
     profileImageUrl?: string;
+
+    @ApiProperty({ type: Segment })
+    segment?: Segment;
+
+    @ApiProperty({ type: State })
+    abrangency?: State[];
+
+    @ApiProperty({ type: Activite })
+    activite?: Activite[];
 }
