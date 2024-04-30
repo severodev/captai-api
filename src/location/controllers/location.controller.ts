@@ -7,9 +7,11 @@ import { LocationService } from '../service/location.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { AllExceptionsFilter } from '../../_filters/all-exceptions.filter';
+import { StateFilter } from '../interfaces/stateFilter';
+import { PaginationMetadataDto } from 'src/util/interfaces/pagination-metadata.dto';
 
 
-@UseGuards(JwtAuthGuard)
+
 @ApiTags('Locations')
 @Controller('location')
 @UseFilters(AllExceptionsFilter)
@@ -25,12 +27,14 @@ export class LocationController {
         type: CityDto,
         isArray: true
     })
+    @UseGuards(JwtAuthGuard)
     @Get('city/dropdown')
     async cityDropdown(@Query('state') state = 6): Promise<CityDto[]> {
         return this.locationService.cityDropdown(state);
     }
 
     @ApiOperation({ summary: 'List of state for input fields and dropdowns. Accepts country filtering (default = Brasil)' })
+    @UseGuards(JwtAuthGuard)
     @ApiResponse({
         status: 200,
         type: StateDto,
@@ -39,5 +43,10 @@ export class LocationController {
     @Get('state/dropdown')
     async stateDropdown(@Query('country') country = 1): Promise<StateDto[]> {
         return this.locationService.stateDropdown(country);
+    }
+
+    @Get()
+    findAll(@Query() filter: StateFilter, @Query() pageOptions: PaginationMetadataDto): any {
+        return this.locationService.findAllStates(filter, pageOptions);
     }
 }
