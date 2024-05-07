@@ -20,8 +20,8 @@ export class EditalsService {
             whereClause.agency = filter.agency;
         }
 
-        if (filter.title) {
-            whereClause.title = Like(`%${filter.title}%`);
+        if (filter.agency) {
+            whereClause.agency = Like(`%${filter.agency.toUpperCase()}%`);
         }
 
         if (filter.financingValue) {
