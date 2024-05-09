@@ -53,6 +53,7 @@ import { SegmentService } from './segment/services/segment.service';
 import { ImagekitController } from './imagekit/controllers/imagekit.controller';
 import { ImagekitService } from './imagekit/services/imagekit.service';
 import { ImageKitModule } from '@platohq/nestjs-imagekit';
+import { MercadoPagoModule } from './mercado-pago/mercado-pago.module';
 
 const { combine, timestamp, label, printf } = winston.format;
 
@@ -151,7 +152,7 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
     AuthModule, UsersModule, UtilModule, CollaboratorsModule, RolesModule,
     InstitutesModule, ProjectModule, S3Module, FileManagementModule,
     DocumentsModule, LocationModule, AuditModule, SuppliersModule, WorkplanModule,
-    UtilModule,
+    UtilModule, MercadoPagoModule,
     ContributionsModule,
     LoanModule,
     ProfilesModule,
