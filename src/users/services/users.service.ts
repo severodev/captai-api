@@ -149,7 +149,7 @@ export class UsersService {
 
     async create(createUserDto: CreateUserDto): Promise<UserDto> {
         try {
-            if (await this.usersRepository.findOne({ where: { email: createUserDto.email} })) {
+            if (await this.usersRepository.findOne({ where: { email: createUserDto.email.toLocaleLowerCase()} })) {
                 throw new Error('Email já utilizado.');
             }
 
@@ -164,8 +164,9 @@ export class UsersService {
             newUser.acceptedPrivacyPolicy = createUserDto.acceptedPrivacyPolicy;
             newUser.acceptedTermsOfUse = createUserDto.acceptedTermsOfUse;
             newUser.password = await this.utilService.generateHash(createUserDto.password);
-            newUser.email = createUserDto.email;
+            newUser.email = createUserDto.email.toLowerCase();
             newUser.cpfCnpj = createUserDto.cpfCnpj;
+            newUser.subscriptionId = createUserDto.subscriptionId;
 
             if (createUserDto.abrangency) {
                 newUser.abrangency = await this.locationService.findAllStates({
@@ -233,7 +234,7 @@ export class UsersService {
         }
         
         if (updateUserDto.email) {
-            userReference =  await this.usersRepository.findOne({ where: { email: updateUserDto.email} });
+            userReference =  await this.usersRepository.findOne({ where: { email: updateUserDto.email.toLowerCase()} });
             if (userReference && userReference.id != user.id) {
                 throw new Error('Email já utilizado.');
             }
@@ -246,10 +247,10 @@ export class UsersService {
             } 
         }
         
-        user.name = updateUserDto.name
-        user.lastName = updateUserDto.lastName
-        user.email = updateUserDto.email
-        user.cpfCnpj = updateUserDto.cpfCnpj
+        user.name = updateUserDto.name;
+        user.lastName = updateUserDto.lastName;
+        user.email = updateUserDto.email.toLowerCase();
+        user.cpfCnpj = updateUserDto.cpfCnpj;
 
         if (updateUserDto.abrangency) {
             user.abrangency = await this.locationService.findAllStates({
@@ -464,5 +465,15 @@ export class UsersService {
             user.profileImageId = imageId;
             this.usersRepository.save(user);
         }
+    }
+
+    async checkAvailabilityEmail(email: string) : Promise<boolean> {
+        const emailOccurencies = await this.usersRepository.count( { where : {email: email.toLowerCase()} });
+        return emailOccurencies == 0; 
+    }
+
+    async checkAvailabilityCpfCnpj(cpfCnpj: string) : Promise<boolean> {
+        const cpfCnpjOccurencies = await this.usersRepository.count( { where : {cpfCnpj: cpfCnpj} });
+        return cpfCnpjOccurencies == 0; 
     }
 }

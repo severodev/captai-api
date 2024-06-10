@@ -52,6 +52,9 @@ export class User {
   @Column({ name: 'ds_profile_image_id', length: 50, nullable: true})
   profileImageId: string;
 
+  @Column({ name: 'ds_subscription_id', length: 50, nullable: true})
+  subscriptionId: string;
+
   @Exclude()
   @Column({ name: 'dt_creation', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: number;

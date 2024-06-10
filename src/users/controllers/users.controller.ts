@@ -25,7 +25,7 @@ export class UsersController {
     constructor(
         private readonly usersService: UsersService,
     ) { }
-    
+
     @UseGuards(JwtAuthGuard)
     @Roles('ADMIN')
     @Get()
@@ -48,19 +48,19 @@ export class UsersController {
         status: 200
     })
 
-/*     @UseGuards(JwtAuthGuard)
-    @Roles('ADMIN')
-    @Permissions(PermissionsEnum.USER_LIST)
-    @Get()
-    findUsers(@Query('search') search, 
-    @Query('orderby') orderby,
-    @Query('desc') desc: number, 
-    @Query('itemsPerPage') itemsPerPage = 10,
-    @Query('page') page = 1, 
-    @Query('isActive') isActive = true,
-    @Query('filters') filters: any): Promise<User[]> {
-        return this.usersService.findUsers(search, orderby, (desc && desc > 0), itemsPerPage, page, isActive, filters);
-    } */
+    /*     @UseGuards(JwtAuthGuard)
+        @Roles('ADMIN')
+        @Permissions(PermissionsEnum.USER_LIST)
+        @Get()
+        findUsers(@Query('search') search, 
+        @Query('orderby') orderby,
+        @Query('desc') desc: number, 
+        @Query('itemsPerPage') itemsPerPage = 10,
+        @Query('page') page = 1, 
+        @Query('isActive') isActive = true,
+        @Query('filters') filters: any): Promise<User[]> {
+            return this.usersService.findUsers(search, orderby, (desc && desc > 0), itemsPerPage, page, isActive, filters);
+        } */
 
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Creates a new user' })
@@ -69,8 +69,7 @@ export class UsersController {
     })
 
     @Post()
-    register(@Req() req: any,  @Body() createUserDto: CreateUserDto) {
-        
+    register(@Req() req: any, @Body() createUserDto: CreateUserDto) {
         return this.usersService.create(createUserDto);
     }
 
@@ -78,7 +77,7 @@ export class UsersController {
     ChangePassword(@Body() username: RecoverPasswordDto) {
         return this.usersService.requestPasswordRecovery(username);
     }
-    
+
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Updates a user' })
     @ApiResponse({ status: 200 })
@@ -88,7 +87,7 @@ export class UsersController {
     update(@Body() updateUserDto: UpdateUserDto, @Param('id') id: string) {
         return this.usersService.update(updateUserDto, id);
     }
- 
+
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Deletes a user' })
     @ApiResponse({
@@ -101,7 +100,7 @@ export class UsersController {
     delete(@Req() req: any, @Param('id') id: string) {
         return this.usersService.delete(id, req.auditEntry);
     }
-   
+
     @ApiOperation({ summary: 'Create the user password based on the first access request' })
     @ApiResponse({ status: 200 })
     @Post('firstAccess')
@@ -113,5 +112,17 @@ export class UsersController {
     @Post('validate-email')
     async validateEmail(@Body() token: tokenDto) {
         return this.usersService.validateEmail(token.token);
+    }
+
+    @ApiResponse({ status: 200 })
+    @Get('check-availability-email')
+    async checkAvailability(@Query('email') email: string) {
+        return this.usersService.checkAvailabilityEmail(email);
+    }
+
+    @ApiResponse({ status: 200 })
+    @Get('check-availability-cpf-cnpj')
+    async checkAvailabilityCpfCnpj(@Query('cpfCnpj') cpfCnpj: string) {
+        return this.usersService.checkAvailabilityCpfCnpj(cpfCnpj);
     }
 }
