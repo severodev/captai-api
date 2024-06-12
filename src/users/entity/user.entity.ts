@@ -8,6 +8,7 @@ import { FirstAccess } from './first-access.entity';
 import { Segment } from 'src/segment/entity/segment.entity';
 import { State } from 'src/location/entity/state.entity';
 import { Activite } from 'src/activities/entity/Activite.entity';
+import { Institute } from 'src/institutes/entity/institute.entity';
 
 @Entity({ name: 'tb_user' })
 export class User {
@@ -20,7 +21,7 @@ export class User {
   @Column({ name: 'ds_last_name', length: 50, nullable: true })
   lastName: string;
 
- @Column({ name: 'ds_email', length: 150, default: '' })
+  @Column({ name: 'ds_email', length: 150, default: '' })
   email: string;
 
   @Column({ name: 'ds_cpf_cnpj', length: 20, nullable: true})
@@ -54,6 +55,31 @@ export class User {
 
   @Column({ name: 'ds_subscription_id', length: 50, nullable: true})
   subscriptionId: string;
+
+  @Column({ name: 'ds_background', nullable: true})
+  background: string;
+
+  @Column({ name: 'nm_target_value', nullable: true })
+  targetValue: number;
+
+  @Transform(obj => obj.key)
+  @ManyToOne(type => State, { eager: true })
+  @JoinColumn({ name: 'id_state' })
+  state: State;
+
+  // @ManyToMany(() => State, state => state.User, { eager: true })
+  // @JoinTable({
+  //   name: 'tb_user_institutions',
+  //   joinColumn: {
+  //     name: 'user_id',
+  //     referencedColumnName: 'id'
+  //   },
+  //   inverseJoinColumn: {
+  //     name: 'institute_id',
+  //     referencedColumnName: 'id'
+  //   }
+  // })
+  // institutions: Institute[];
 
   @Exclude()
   @Column({ name: 'dt_creation', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
