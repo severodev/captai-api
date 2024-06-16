@@ -25,6 +25,7 @@ import { UserFilter } from '../interfaces/user.filter';
 import { LocationService } from 'src/location/service/location.service';
 import { SegmentService } from 'src/segment/services/segment.service';
 import { ActivitesService } from 'src/activities/services/activite.service';
+import { InstitutionService } from 'src/institution/services/institution.service';
 
 @Injectable()
 export class UsersService {
@@ -42,43 +43,44 @@ export class UsersService {
         private readonly emailService: EmailService,
         private readonly locationService: LocationService,
         private readonly activitesService: ActivitesService,
-        private readonly segmentService: SegmentService) { }
+        private readonly segmentService: SegmentService,
+        private readonly institutionsService: InstitutionService) { }
 
-        async findAll(filter: UserFilter, pageOptions : PaginationMetadataDto): Promise<User[]> {
-            let whereClause: any = {};
-            let orderClause: {[key: string]: string} = {};
+    async findAll(filter: UserFilter, pageOptions: PaginationMetadataDto): Promise<User[]> {
+        let whereClause: any = {};
+        let orderClause: { [key: string]: string } = {};
 
-            if (filter.id) {
-                whereClause.id = filter.id;
-            }
-            if (filter.name) {
-                whereClause = [
-                    { name: Like(`%${filter.name}%`) },
-                    { lastName: Like(`%${filter.name}%`) }
-                ];
-            }
-            if (filter.cpfCnpj) {
-                whereClause.cpfCnpj = filter.cpfCnpj;
-            }
-            if (filter.email) {
-                whereClause.email = filter.email;
-            }
-            if (filter.roleId) {
-                whereClause.role = await this.rolesService.findOne(filter.roleId);
-            }
-
-            if (filter.by && filter.order) {
-                orderClause[filter.by] = filter.order;
-            } 
-
-            let parameters : FindManyOptions<User> = { 
-                where : whereClause,
-                order: orderClause,
-                take: pageOptions.itemsPerPage ? pageOptions.itemsPerPage : 999
-            }
-            
-            return await this.usersRepository.find(parameters);
+        if (filter.id) {
+            whereClause.id = filter.id;
         }
+        if (filter.name) {
+            whereClause = [
+                { name: Like(`%${filter.name}%`) },
+                { lastName: Like(`%${filter.name}%`) }
+            ];
+        }
+        if (filter.cpfCnpj) {
+            whereClause.cpfCnpj = filter.cpfCnpj;
+        }
+        if (filter.email) {
+            whereClause.email = filter.email;
+        }
+        if (filter.roleId) {
+            whereClause.role = await this.rolesService.findOne(filter.roleId);
+        }
+
+        if (filter.by && filter.order) {
+            orderClause[filter.by] = filter.order;
+        }
+
+        let parameters: FindManyOptions<User> = {
+            where: whereClause,
+            order: orderClause,
+            take: pageOptions.itemsPerPage ? pageOptions.itemsPerPage : 999
+        }
+
+        return await this.usersRepository.find(parameters);
+    }
 
     async pagination(search: string, itemsPerPage = 10, isActive: boolean, _filters: any): Promise<PaginationMetadataDto> {
         const filters: FindManyOptions<User> = {
@@ -105,7 +107,7 @@ export class UsersService {
     }
 
     async findById(userId: number) {
-        return this.usersRepository.findOne({ where: {id: userId}});
+        return this.usersRepository.findOne({ where: { id: userId } });
     }
 
     async findByEmail(email: string) {
@@ -149,13 +151,13 @@ export class UsersService {
 
     async create(createUserDto: CreateUserDto): Promise<UserDto> {
         try {
-            if (await this.usersRepository.findOne({ where: { email: createUserDto.email.toLocaleLowerCase()} })) {
+            if (await this.usersRepository.findOne({ where: { email: createUserDto.email.toLocaleLowerCase() } })) {
                 throw new Error('Email já utilizado.');
             }
 
-            if (await this.usersRepository.findOne({ where: { cpfCnpj: createUserDto.cpfCnpj} })) {
+            if (await this.usersRepository.findOne({ where: { cpfCnpj: createUserDto.cpfCnpj } })) {
                 throw new Error('CPF/CNPJ já utilizado.');
-            }           
+            }
 
             const newUser = new User();
             newUser.active = true;
@@ -167,18 +169,24 @@ export class UsersService {
             newUser.email = createUserDto.email.toLowerCase();
             newUser.cpfCnpj = createUserDto.cpfCnpj;
             newUser.subscriptionId = createUserDto.subscriptionId;
+            newUser.background = createUserDto.background;
+            newUser.targetValue = createUserDto.targetValue;
+
+            if (createUserDto.state) {
+                newUser.state = await this.locationService.findState(+createUserDto.state);
+            }
 
             if (createUserDto.abrangency) {
                 newUser.abrangency = await this.locationService.findAllStates({
-                    ids: createUserDto.abrangency,
+                    ids: createUserDto.abrangency.length == 1 && createUserDto.abrangency[0] == 0 ? null : createUserDto.abrangency,
                     name: null,
                     abbreviation: null,
                     country: null,
                     by: null,
                     order: null
                 },
-                {  
-                    itemsPerPage: 99999, 
+                {
+                    itemsPerPage: 99999,
                     totalPages: 9999,
                     currentPage: 0
                 });
@@ -191,11 +199,15 @@ export class UsersService {
                     by: null,
                     order: null
                 },
-                {   
-                    itemsPerPage: 99999, 
-                    totalPages: 9999,
-                    currentPage: 0
-                });
+                    {
+                        itemsPerPage: 99999,
+                        totalPages: 9999,
+                        currentPage: 0
+                    });
+            }
+
+            if (createUserDto.institutions) {
+                newUser.institutions = (await this.institutionsService.dropdownList()).filter(i => createUserDto.institutions.includes(i.id));
             }
 
             if (createUserDto.segment) {
@@ -217,14 +229,14 @@ export class UsersService {
             }
             const savedUser = await this.usersRepository.save(newUser);
             this.validateEmailRequest(savedUser);
-            return <UserDto> {};
+            return <UserDto>{};
         } catch (error) {
             throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
         }
     }
     async update(updateUserDto: UpdateUserDto, id: string) {
-        const user = await this.usersRepository.findOne({ where: { id: +id }})
-        let userReference : User;
+        const user = await this.usersRepository.findOne({ where: { id: +id } })
+        let userReference: User;
         if (!user) {
             throw new NotFoundException(
                 await I18nContext.current().translate('user.NOT_FOUND', {
@@ -232,21 +244,21 @@ export class UsersService {
                 })
             )
         }
-        
+
         if (updateUserDto.email) {
-            userReference =  await this.usersRepository.findOne({ where: { email: updateUserDto.email.toLowerCase()} });
+            userReference = await this.usersRepository.findOne({ where: { email: updateUserDto.email.toLowerCase() } });
             if (userReference && userReference.id != user.id) {
                 throw new Error('Email já utilizado.');
             }
         }
-        
+
         if (updateUserDto.cpfCnpj) {
-            userReference = await this.usersRepository.findOne({ where: { cpfCnpj: updateUserDto.cpfCnpj} })
+            userReference = await this.usersRepository.findOne({ where: { cpfCnpj: updateUserDto.cpfCnpj } })
             if (userReference && userReference.id != user.id) {
                 throw new Error('CPF/CNPJ já utilizado.');
-            } 
+            }
         }
-        
+
         user.name = updateUserDto.name;
         user.lastName = updateUserDto.lastName;
         user.email = updateUserDto.email.toLowerCase();
@@ -260,11 +272,12 @@ export class UsersService {
                 country: null,
                 by: null,
                 order: null
-            }, 
-            {   itemsPerPage: 99999, 
-                totalPages: 9999,
-                currentPage: 0
-            });
+            },
+                {
+                    itemsPerPage: 99999,
+                    totalPages: 9999,
+                    currentPage: 0
+                });
         }
 
         if (updateUserDto.activite) {
@@ -273,9 +286,11 @@ export class UsersService {
                 name: null,
                 by: null,
                 order: null
-            },{   itemsPerPage: 99999, 
+            }, {
+                itemsPerPage: 99999,
                 totalPages: 9999,
-                currentPage: 0});
+                currentPage: 0
+            });
         }
 
         if (updateUserDto.segment) {
@@ -284,15 +299,15 @@ export class UsersService {
 
         //user.language = updateUserDto.language
 
-       /*if (updateUserDto.collaborator) {
-            user.collaborator = await this.collaboratorService.findOne(updateUserDto.collaborator)
-        }
-        if (updateUserDto.role) {
-            user.role = await this.rolesService.findOne(updateUserDto.role)
-        }
-        if (updateUserDto.profile) {
-            user.profile = await this.profilesService.getByKey(updateUserDto.profile)
-        } */
+        /*if (updateUserDto.collaborator) {
+             user.collaborator = await this.collaboratorService.findOne(updateUserDto.collaborator)
+         }
+         if (updateUserDto.role) {
+             user.role = await this.rolesService.findOne(updateUserDto.role)
+         }
+         if (updateUserDto.profile) {
+             user.profile = await this.profilesService.getByKey(updateUserDto.profile)
+         } */
         this.usersRepository.save(user)
 
         return <UpdateUserDto>{
@@ -305,7 +320,7 @@ export class UsersService {
     }
 
     async delete(id: string, auditEntry: AudityEntryDto) {
-        const user = await this.usersRepository.findOne({ where: { id: +id }})
+        const user = await this.usersRepository.findOne({ where: { id: +id } })
 
         if (!user) {
             throw new NotFoundException(
@@ -380,7 +395,7 @@ export class UsersService {
 
     async changePassword(changePasswordDto: ChangePasswordDto): Promise<boolean> {
 
-        const user = await this.usersRepository.findOne( {where: { id: changePasswordDto.userId } });
+        const user = await this.usersRepository.findOne({ where: { id: changePasswordDto.userId } });
         user.password = await this.utilService.generateHash(changePasswordDto.newPassword);
 
         this.usersRepository.save(user);
@@ -388,7 +403,7 @@ export class UsersService {
     }
 
     async updateRefreshToken(userId: number, refreshToken: string) {
-        const user = await this.usersRepository.findOne( { where : {id: userId} });
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
         if (user) {
             user.refreshToken = refreshToken;
             this.usersRepository.save(user);
@@ -438,7 +453,7 @@ export class UsersService {
     async createPasswordFirstAccess(createPasswordDto: CreatePasswordDto): Promise<boolean> {
         const firstAccessRequest = await this.firstAccessService.findByToken(createPasswordDto.token);
 
-        if(firstAccessRequest) {
+        if (firstAccessRequest) {
             firstAccessRequest.user.password = await this.utilService.generateHash(createPasswordDto.password);
             firstAccessRequest.user.emailVerified = true;
             await this.usersRepository.save(firstAccessRequest.user);
@@ -450,7 +465,7 @@ export class UsersService {
 
     async validateEmail(token: string): Promise<boolean> {
         const firstAccessRequest = await this.firstAccessService.findByToken(token);
-        if(firstAccessRequest) {
+        if (firstAccessRequest) {
             firstAccessRequest.user.emailVerified = true;
             await this.usersRepository.save(firstAccessRequest.user);
             await this.firstAccessService.invalidateRequest(firstAccessRequest);
@@ -460,20 +475,20 @@ export class UsersService {
     }
 
     async updateProfileImage(userId: number, imageId: string) {
-        const user = await this.usersRepository.findOne( { where : {id: userId} });
+        const user = await this.usersRepository.findOne({ where: { id: userId } });
         if (user) {
             user.profileImageId = imageId;
             this.usersRepository.save(user);
         }
     }
 
-    async checkAvailabilityEmail(email: string) : Promise<boolean> {
-        const emailOccurencies = await this.usersRepository.count( { where : {email: email.toLowerCase()} });
-        return emailOccurencies == 0; 
+    async checkAvailabilityEmail(email: string): Promise<boolean> {
+        const emailOccurencies = await this.usersRepository.count({ where: { email: email.toLowerCase() } });
+        return emailOccurencies == 0;
     }
 
-    async checkAvailabilityCpfCnpj(cpfCnpj: string) : Promise<boolean> {
-        const cpfCnpjOccurencies = await this.usersRepository.count( { where : {cpfCnpj: cpfCnpj} });
-        return cpfCnpjOccurencies == 0; 
+    async checkAvailabilityCpfCnpj(cpfCnpj: string): Promise<boolean> {
+        const cpfCnpjOccurencies = await this.usersRepository.count({ where: { cpfCnpj: cpfCnpj } });
+        return cpfCnpjOccurencies == 0;
     }
 }

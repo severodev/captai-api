@@ -22,6 +22,10 @@ export class CreateUserDto {
     @IsString()
     @ApiProperty({ example: 'asd90SDKMs23sda_12', description: 'User password' })
     password: string;
+
+    @IsNumber()
+    @ApiProperty({ description: 'Estado de origem/trabalho do usuário' })
+    state: number;
     
     @IsBoolean()
     @ApiProperty({ example: 'true', description: 'Veryfication' })

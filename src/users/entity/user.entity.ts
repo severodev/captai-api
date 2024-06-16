@@ -9,6 +9,7 @@ import { Segment } from 'src/segment/entity/segment.entity';
 import { State } from 'src/location/entity/state.entity';
 import { Activite } from 'src/activities/entity/Activite.entity';
 import { Institute } from 'src/institutes/entity/institute.entity';
+import { Institution } from 'src/institution/entity/institution.entity';
 
 @Entity({ name: 'tb_user' })
 export class User {
@@ -67,19 +68,13 @@ export class User {
   @JoinColumn({ name: 'id_state' })
   state: State;
 
-  // @ManyToMany(() => State, state => state.User, { eager: true })
-  // @JoinTable({
-  //   name: 'tb_user_institutions',
-  //   joinColumn: {
-  //     name: 'user_id',
-  //     referencedColumnName: 'id'
-  //   },
-  //   inverseJoinColumn: {
-  //     name: 'institute_id',
-  //     referencedColumnName: 'id'
-  //   }
-  // })
-  // institutions: Institute[];
+  @ManyToMany(type => Institution, { cascade: true })
+  @JoinTable({
+    name: 'tb_user_institutions',
+    joinColumn: { name: 'id_user' },
+    inverseJoinColumn: { name: 'id_institution' },
+  })
+  institutions: Institution[];
 
   @Exclude()
   @Column({ name: 'dt_creation', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

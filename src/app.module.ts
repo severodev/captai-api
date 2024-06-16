@@ -54,6 +54,9 @@ import { ImagekitController } from './imagekit/controllers/imagekit.controller';
 import { ImagekitService } from './imagekit/services/imagekit.service';
 import { ImageKitModule } from '@platohq/nestjs-imagekit';
 import { MercadoPagoModule } from './mercadopago/mercadopago.module';
+import { InstitutionModule } from './institution/institution.module';
+import { InstitutionController } from './institution/controllers/institution.controller';
+import { InstitutionService } from './institution/services/institution.service';
 
 const { combine, timestamp, label, printf } = winston.format;
 
@@ -153,13 +156,14 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
     EditalModule, ActiviteModule, SegmentModule, MercadoPagoModule,
     InstitutesModule, ProjectModule, S3Module, FileManagementModule,
     DocumentsModule, LocationModule, SuppliersModule, WorkplanModule,
-    UtilModule, ContributionsModule, LoanModule, CollaboratorsModule
+    UtilModule, ContributionsModule, LoanModule, CollaboratorsModule,
+    InstitutionModule
   ],
   controllers: [AppController, RolesController, UsersController, ImagekitController,
-    CollaboratorsController, DocumentsController, ExpensesController
+    CollaboratorsController, DocumentsController, ExpensesController, InstitutionController
   ],
   providers: [AppService, RolesService, UsersService, UtilService, FirstAccessService, PasswordRecoveryService, EmailService,
-    PayrollService, ImagekitService, SegmentService,
+    PayrollService, ImagekitService, SegmentService, InstitutionService,
     CollaboratorsService, ExpenseService,  ProjectsService,  WorkplanService, 
     {
       provide: 'MomentWrapper',
