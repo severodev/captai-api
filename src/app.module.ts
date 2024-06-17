@@ -53,6 +53,10 @@ import { SegmentService } from './segment/services/segment.service';
 import { ImagekitController } from './imagekit/controllers/imagekit.controller';
 import { ImagekitService } from './imagekit/services/imagekit.service';
 import { ImageKitModule } from '@platohq/nestjs-imagekit';
+import { MercadoPagoModule } from './mercadopago/mercadopago.module';
+import { InstitutionModule } from './institution/institution.module';
+import { InstitutionController } from './institution/controllers/institution.controller';
+import { InstitutionService } from './institution/services/institution.service';
 
 const { combine, timestamp, label, printf } = winston.format;
 
@@ -147,21 +151,21 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
       privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
       urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
     }),
-    ScheduleModule.forRoot(),
-    AuthModule, UsersModule, UtilModule, CollaboratorsModule, RolesModule,
+    ScheduleModule.forRoot(), AuditModule,
+    AuthModule, UsersModule, RolesModule, ProfilesModule, 
+    EditalModule, ActiviteModule, SegmentModule, MercadoPagoModule,
     InstitutesModule, ProjectModule, S3Module, FileManagementModule,
-    DocumentsModule, LocationModule, AuditModule, SuppliersModule, WorkplanModule,
-    UtilModule,
-    ContributionsModule,
-    LoanModule,
-    ProfilesModule,
-    EditalModule,
-    ActiviteModule,
-    SegmentModule],
-  controllers: [AppController, CollaboratorsController, RolesController,
-    UsersController, DocumentsController, ExpensesController, ImagekitController],
-  providers: [AppService, CollaboratorsService, RolesService, UsersService, UtilService, PayrollService, ImagekitService, SegmentService,
-    ExpenseService, PasswordRecoveryService, EmailService, ProjectsService, FirstAccessService, WorkplanService, {
+    DocumentsModule, LocationModule, SuppliersModule, WorkplanModule,
+    UtilModule, ContributionsModule, LoanModule, CollaboratorsModule,
+    InstitutionModule
+  ],
+  controllers: [AppController, RolesController, UsersController, ImagekitController,
+    CollaboratorsController, DocumentsController, ExpensesController, InstitutionController
+  ],
+  providers: [AppService, RolesService, UsersService, UtilService, FirstAccessService, PasswordRecoveryService, EmailService,
+    PayrollService, ImagekitService, SegmentService, InstitutionService,
+    CollaboratorsService, ExpenseService,  ProjectsService,  WorkplanService, 
+    {
       provide: 'MomentWrapper',
       useValue: moment
     },

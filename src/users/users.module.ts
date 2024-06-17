@@ -18,11 +18,14 @@ import { SegmentModule } from '../segment/segment.module';
 import { SegmentService } from '../segment/services/segment.service';
 import { ActiviteModule } from '../activities/activite.module';
 import { ActivitesService } from '../activities/services/activite.service';
+import { InstitutionService } from 'src/institution/services/institution.service';
+import { InstitutionModule } from 'src/institution/institution.module';
 
 @Module({
-  imports: [DatabaseModule, CollaboratorsModule, RolesModule, SegmentModule, UtilModule, ActiviteModule],
-  providers: [...usersProviders, ...passwordRecoveryProviders, ...firstAccessProviders, 
-    UsersService, PasswordRecoveryService, UtilService, CollaboratorsService, RolesService, FirstAccessService, EmailService, SegmentService, ActivitesService],
+  imports: [DatabaseModule, CollaboratorsModule, RolesModule, SegmentModule, UtilModule, ActiviteModule, InstitutionModule],
+  providers: [...usersProviders, ...passwordRecoveryProviders, ...firstAccessProviders,
+    UsersService, PasswordRecoveryService, UtilService, CollaboratorsService, RolesService, 
+    FirstAccessService, EmailService, SegmentService, ActivitesService, InstitutionService],
   controllers: [UsersController],
   exports: [...usersProviders, ...passwordRecoveryProviders, ...firstAccessProviders, UsersService]
 })

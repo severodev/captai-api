@@ -47,6 +47,7 @@ export class LocationService {
 
     async stateDropdown(country: number): Promise<StateDto[]> {
         const filters: FindManyOptions<State> = {
+            where: { active: true },
             order: {
                 abbreviation: "ASC"
             },
@@ -76,14 +77,16 @@ export class LocationService {
 
     async findAllStates(filter: StateFilter, pageOptions : PaginationMetadataDto): Promise<State[]> {
 
-        const whereClause: any = {};
+        const whereClause: any = {
+            active: true
+        };
 
         if (filter.ids) {
             whereClause.id = In(filter.ids);
         }
 
         if (filter.name) {
-            whereClause.neme = Like(`%${filter.name}%`);
+            whereClause.name = Like(`%${filter.name}%`);
         }
 
         if (filter.abbreviation) {

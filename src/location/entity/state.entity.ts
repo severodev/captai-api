@@ -14,6 +14,9 @@ export class State {
   @Column({ name: 'ds_name', length: 150 })
   name: string;
 
+  @Column({ name: 'st_active', type: 'bool', default: true })
+  active: boolean;
+
   @ManyToOne(type => Country, { eager: false })
   @JoinColumn({ name: 'id_country' })
   country: Country;
