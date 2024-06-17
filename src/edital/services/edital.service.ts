@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { FindManyOptions, FindOptionsWhere, In, Like, Repository } from 'typeorm';
+import { Between, FindManyOptions, FindOptionsWhere, In, LessThanOrEqual, Like, Repository } from 'typeorm';
 import { edital } from '../entity/edital.entity';
 import { PaginationMetadataDto } from 'src/util/interfaces/pagination-metadata.dto';
 import { EditalFilter } from '../interfaces/edital.filter';
@@ -35,11 +35,11 @@ export class EditalsService {
         }
 
         if (filter.submission) {
-            whereClause.submission = Like(`%${filter.submission}%`);
+            whereClause.dt_submission = LessThanOrEqual(filter.submission);
         }
 
-        if (filter.financingValue) {
-            whereClause.financingValue = filter.financingValue;
+        if (filter.financingValueHigh && filter.financingValueLow) {
+            whereClause.nm_financing_value = Between(filter.financingValueLow, filter.financingValueHigh);
         }
 
         if (filter.maturity) {
