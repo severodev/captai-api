@@ -44,4 +44,13 @@ export class edital {
 
   @Column({ name: 'nm_file_version', nullable: true })
   fileVersion: number;
+
+  @Column({ name: 'dt_submission', type: 'timestamp', nullable: true })
+  dt_submission: Date;
+
+  @Column({ name: 'ds_currency', nullable: true })
+  ds_currency: string;
+
+  @Column({ name: 'nm_financing_value', nullable: true })
+  nm_financing_value: number;
 } 
