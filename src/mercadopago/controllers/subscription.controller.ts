@@ -3,6 +3,7 @@ import { Body, Controller, Param, Post, Req, UseFilters } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MercadoPagoConfig, Payment, PreApproval } from 'mercadopago';
 import { AllExceptionsFilter } from 'src/_filters/all-exceptions.filter';
+var crypto = require('crypto');
 
 interface SubscriptionPlan {
     id: number;
