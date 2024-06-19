@@ -26,4 +26,4 @@ RUN npm ci --force
 
 COPY --from=deploy /usr/src/app/dist ./dist
 
-CMD ["node", "dist/main.js", "--trace-warnings"]
+CMD ["node", "dist/main.js"]
