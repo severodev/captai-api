@@ -39,7 +39,9 @@ export class EmailService {
   }
 
   async sendEmailValidateEmail(firstAccess: FirstAccess) {
-    this.mailerService
+    try {
+
+      this.mailerService
       .sendMail({
         to: firstAccess.user.email,
         from: await I18nContext.current().translate('auth.EMAIL_ACCOUNT_ACTIVATION.FROM', {
@@ -55,13 +57,17 @@ export class EmailService {
       })
       .then(() => {
         // TODO: Centralize success mesaging and handling
-        //console.log('Sucesso ao enviar email');
+        console.log('Sucesso ao enviar email');
       })
       .catch(err => {
         // TODO: Centralize success mesaging and handling
-        //console.error(`Erro ao enviar email de recuperação de senha para : ${firstAccess.user.email}`);
-        //console.error(err);
+        console.error(`Erro ao enviar email de validação de conta para : ${firstAccess.user.email}`);
+        console.error(err);
       });
+    } catch(error) {
+        console.error(`Erro GERAL ao enviar email de validação de conta para : ${firstAccess.user.email}`);
+        console.error(error);
+    }
   }
 
   async sendEmailFirstAccessRequest(firstAccess: FirstAccess) {
@@ -83,7 +89,7 @@ export class EmailService {
         console.debug('Sucesso ao enviar email de recuperação de senha!');
       })
       .catch(err => {
-        console.error(`Erro ao enviar email de recuperação de senha para: ${firstAccess.user.email}`);
+        console.error(`Erro ao enviar email de primeiro acesso para: ${firstAccess.user.email}`);
         console.error(err);
       });
   }

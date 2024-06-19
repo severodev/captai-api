@@ -447,6 +447,8 @@ export class UsersService {
             await this.usersRepository.save(user);
 
             this.emailService.sendEmailValidateEmail(firstAccessRequest);
+        } else {
+            console.log("Email não enviado - Motivo: usuário nulo [validatEmailRequest:434]");
         }
     }
 
