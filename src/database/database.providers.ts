@@ -14,7 +14,7 @@ export const databaseProviders = [
         username: process.env.DATABASE_USERNAME,
         password: process.env.DATABASE_PASSWORD,
         database: process.env.DATABASE_DBNAME,
-        ssl: true,
+        ssl: process.env.API_ENV == 'prod' || false,
         entities: [
             __dirname + '/../**/*.entity{.ts,.js}',
         ],

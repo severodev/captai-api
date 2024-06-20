@@ -8,7 +8,7 @@ export class Institution {
   @Column({ name: 'st_active', type: 'bool', default: true })
   active: boolean;
 
-  @Column({ name: 'ds_abbreviation', length: 10 })
+  @Column({ name: 'ds_abbreviation', length: 20, nullable: true })
   abbreviation: string;
 
   @Column({ name: 'ds_name', length: 255 })
