@@ -13,50 +13,48 @@ export class EditalsService {
     ) { }
 
     async findAll(filter: EditalFilter, pageOptions : PaginationMetadataDto): Promise<edital[]> {
-
-        const whereClause: any = {};
-
-        if (filter.agency) {
-            whereClause.agency = filter.agency;
-        }
-
+        let query = this.editalRepository.createQueryBuilder('entity');
+    
         if (filter.agencyList) {
             let lista = filter.agencyList.split(',');
-            whereClause.agency = In(lista);
-        } else {
-            if (filter.agency) {
-                whereClause.agency = Like(`%${filter.agency.toLocaleUpperCase()}%`);
-            }
+            query = query.andWhere('entity.agency IN (:...lista)', { lista });
+        } else if (filter.agency) {
+            const searchValue = `%${filter.agency?.toUpperCase()}%`;
+            query = query.andWhere('entity.agency ILIKE :searchValue OR entity.title ILIKE :searchValue', { searchValue });
         }
-
+    
         if (filter.areaList) {
             let lista = filter.areaList.split(',').map(item => item.trim());
-            whereClause.areaList = In(lista);
+            query = query.andWhere('entity.areaList IN (:...lista)', { lista });
         }
-
+    
         if (filter.submission) {
-            whereClause.dt_submission = LessThanOrEqual(filter.submission);
+            let toDay = new Date();
+            toDay.setMinutes(0, 0, 0);
+            console.log('toDay ', new Date().setMinutes(0,0))
+            query = query.andWhere('entity.dt_submission <= :submission  AND entity.dt_submission >= :toDay', { submission: filter.submission, toDay: toDay });
         }
-
+    
         if (filter.financingValueHigh && filter.financingValueLow) {
-            whereClause.nm_financing_value = Between(filter.financingValueLow, filter.financingValueHigh);
+            query = query.andWhere('entity.nm_financing_value BETWEEN :low AND :high', {
+                low: filter.financingValueLow,
+                high: filter.financingValueHigh
+            });
         }
-
+    
         if (filter.maturity) {
-            whereClause.maturityLevel = Like(`%${filter.maturity}%`);
+            query = query.andWhere('entity.maturityLevel LIKE :maturity', { maturity: `%${filter.maturity}%` });
         }
-        let orderClause: {[key: string]: string} = {};
 
         if (filter.by && filter.order) {
-            orderClause[filter.by] = filter.order;
-        } 
-
-        let parameters : FindManyOptions<edital> = { 
-            where : whereClause,
-            order: orderClause,
-            take: pageOptions.itemsPerPage ? pageOptions.itemsPerPage : 9999
+            query = query.orderBy(`entity.${filter.by}`, filter.order.toUpperCase() as 'ASC' | 'DESC');
         }
-        return this.editalRepository.find(parameters);
+    
+        if (pageOptions.itemsPerPage) {
+            query = query.take(pageOptions.itemsPerPage);
+        }
+    
+        return query.getMany();
     }
 
     async findOne(id: number): Promise<edital> {
