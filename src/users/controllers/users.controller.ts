@@ -14,6 +14,7 @@ import { PermissionsEnum } from '../../profiles/enum/permissions.enum';
 import { RecoverPasswordDto } from 'src/auth/interfaces/recover-password.dto';
 import { tokenDto } from '../interfaces/token.dto';
 import { UserFilter } from '../interfaces/user.filter';
+import { jwtEditUseGuard } from 'src/auth/jwt-editUse.guard';
 
 
 @ApiTags('Users')
@@ -81,8 +82,7 @@ export class UsersController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Updates a user' })
     @ApiResponse({ status: 200 })
-    @UseGuards(JwtAuthGuard)
-    @Roles('ADMIN')
+    @UseGuards(jwtEditUseGuard)
     @Put(':id')
     update(@Body() updateUserDto: UpdateUserDto, @Param('id') id: string) {
         return this.usersService.update(updateUserDto, id);
