@@ -14,10 +14,11 @@ export const databaseProviders = [
         username: process.env.DATABASE_USERNAME,
         password: process.env.DATABASE_PASSWORD,
         database: process.env.DATABASE_DBNAME,
+        ssl: process.env.API_ENV == 'prod' || false,
         entities: [
             __dirname + '/../**/*.entity{.ts,.js}',
         ],
-        synchronize: true,
+        synchronize: false,
       });
 
       return dataSource.initialize();

@@ -1,4 +1,4 @@
-FROM node:16.16.0-alpine AS deploy
+FROM node:20-alpine AS deploy
 
 ARG APP_NAME
 
@@ -12,7 +12,7 @@ COPY . .
 
 RUN npm install --force && npm ci --force && npm run build
 
-FROM node:16.16.0-alpine AS prod
+FROM node:20-alpine AS prod
 
 RUN mkdir -p /usr/src/app
 

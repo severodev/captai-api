@@ -15,6 +15,9 @@ export class edital {
   @Column({ name: 'ds_title', nullable: true })
   title: string;
 
+  @Column({ name: 'ds_full_title', nullable: true })
+  fullTitle: string;
+
   @Column({ name: 'ds_objective', nullable: true })
   objective: string;
 
