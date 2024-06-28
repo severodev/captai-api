@@ -448,7 +448,7 @@ export class UsersService {
 
             this.emailService.sendEmailValidateEmail(firstAccessRequest);
         } else {
-            console.log("Email não enviado - Motivo: usuário nulo [validatEmailRequest:434]");
+            console.log("Email não enviado - Motivo: usuário nulo [validatEmailRequest]");
         }
     }
 
