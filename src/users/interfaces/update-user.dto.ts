@@ -35,6 +35,10 @@ export class UpdateUserDto {
     @ApiProperty({ example: 'pt_BR', description: 'User prefered language' })
     language?: string;
 
+    @IsString()
+    @ApiProperty({ example: 'Key', description: 'User pass for enter in system' })
+    password?: string;
+
     @IsNumber()
     segment?: number;
 

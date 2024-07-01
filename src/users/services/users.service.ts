@@ -47,39 +47,44 @@ export class UsersService {
         private readonly institutionsService: InstitutionService) { }
 
     async findAll(filter: UserFilter, pageOptions: PaginationMetadataDto): Promise<User[]> {
-        let whereClause: any = {};
-        let orderClause: { [key: string]: string } = {};
+        let query = this.usersRepository.createQueryBuilder('user');
 
+        query = query
+        .leftJoinAndSelect('user.state', 'state')
+        .leftJoinAndSelect('user.role', 'role')
+        .leftJoinAndSelect('user.profile', 'profile')
+        .leftJoinAndSelect('user.segment', 'segment')
+        .leftJoinAndSelect('user.abrangency', 'abrangency')
+        .leftJoinAndSelect('user.activite', 'activite')
+        .leftJoinAndSelect('user.institutions', 'institutions');
+    
         if (filter.id) {
-            whereClause.id = filter.id;
+            query = query.andWhere('user.id = :id', { id: filter.id });
         }
         if (filter.name) {
-            whereClause = [
-                { name: Like(`%${filter.name}%`) },
-                { lastName: Like(`%${filter.name}%`) }
-            ];
+            query = query.andWhere('user.name ILIKE  :name OR user.lastName ILIKE  :name', { name: `%${filter.name}%` });
         }
         if (filter.cpfCnpj) {
-            whereClause.cpfCnpj = filter.cpfCnpj;
+            query = query.andWhere('user.cpfCnpj = :cpfCnpj', { cpfCnpj: filter.cpfCnpj });
         }
         if (filter.email) {
-            whereClause.email = filter.email;
+            query = query.andWhere('user.email = :email', { email: `%${filter.email}%` });
         }
         if (filter.roleId) {
-            whereClause.role = await this.rolesService.findOne(filter.roleId);
+            
+            query = query.andWhere('user.id_role = :role', { role: filter.roleId });
+    
         }
-
+    
         if (filter.by && filter.order) {
-            orderClause[filter.by] = filter.order;
+            query = query.orderBy(`user.${filter.by}`, filter.order.toUpperCase() as 'ASC' | 'DESC');
         }
-
-        let parameters: FindManyOptions<User> = {
-            where: whereClause,
-            order: orderClause,
-            take: pageOptions.itemsPerPage ? pageOptions.itemsPerPage : 999
+    
+        if (pageOptions.itemsPerPage) {
+            query = query.take(pageOptions.itemsPerPage);
         }
-
-        return await this.usersRepository.find(parameters);
+    
+        return await query.getMany();
     }
 
     async pagination(search: string, itemsPerPage = 10, isActive: boolean, _filters: any): Promise<PaginationMetadataDto> {
@@ -234,7 +239,30 @@ export class UsersService {
             throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
         }
     }
-    async update(updateUserDto: UpdateUserDto, id: string) {
+
+    async createGuester(createUserDto: CreateUserDto): Promise<UserDto> {
+        try {
+            if (await this.usersRepository.findOne({ where: { email: createUserDto.email.toLocaleLowerCase() } })) {
+                throw new Error('Email já utilizado.');
+            }
+
+            const newUser = new User();
+            newUser.active = true;
+            newUser.name = createUserDto.name;
+            newUser.lastName = createUserDto.lastName;
+            newUser.email = createUserDto.email.toLowerCase();
+            newUser.password = await this.utilService.generateHash(new Date().getMilliseconds.toString());
+            newUser.role = await this.rolesService.findOne(3);
+
+            const savedUser = await this.usersRepository.save(newUser);
+            this.requestFirstAccess(savedUser);
+            return <UserDto>{};
+        } catch (error) {
+            throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    async update(updateUserDto: UpdateUserDto, id: string) {////////////////////////////////////////////////////////////////////////////////
         const user = await this.usersRepository.findOne({ where: { id: +id } })
         let userReference: User;
         if (!user) {
@@ -297,17 +325,9 @@ export class UsersService {
             user.segment = await this.segmentService.findOne(updateUserDto.segment);
         }
 
-        //user.language = updateUserDto.language
-
-        /*if (updateUserDto.collaborator) {
-             user.collaborator = await this.collaboratorService.findOne(updateUserDto.collaborator)
-         }
-         if (updateUserDto.role) {
-             user.role = await this.rolesService.findOne(updateUserDto.role)
-         }
-         if (updateUserDto.profile) {
-             user.profile = await this.profilesService.getByKey(updateUserDto.profile)
-         } */
+        if(updateUserDto.password) {
+            user.password = await this.utilService.generateHash(updateUserDto.password);
+        }
         this.usersRepository.save(user)
 
         return <UpdateUserDto>{
@@ -425,8 +445,12 @@ export class UsersService {
 
             user.firstAccess.push(firstAccessRequest);
             await this.usersRepository.save(user);
-
-            this.emailService.sendEmailFirstAccessRequest(firstAccessRequest);
+            if (user.role.id === 3) {
+                this.emailService.sendGuestInvite(firstAccessRequest);
+            } else {
+                this.emailService.sendEmailFirstAccessRequest(firstAccessRequest);
+            }
+            
         }
     }
 
