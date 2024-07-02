@@ -79,9 +79,9 @@ export class AuthService {
                 segment: user.segment,
                 roleId: user.role.id,
                 language: user.language,
-                profileImageId: user.profileImageId,
-                profileImageUrl: await this.imagekitService.getFileUrl(user.profileImageId)
-            };
+                profileImageId: user.profileImageId ?  user.profileImageId : null,
+                profileImageUrl: user.profileImageId ? await this.imagekitService.getFileUrl(user.profileImageId) : null 
+            };                
             return await this.generateTokens(payload);
         }
         return new UnauthorizedException('Falha ao atulizar reefresh token','Refresh token inválido ou inexistente');
@@ -89,7 +89,7 @@ export class AuthService {
 
     private async generateTokens(payload: any) : Promise<LoginResultDto> {
         const refreshToken = await this.utilService.generateHash(new Date().getMilliseconds().toString());
-        this.usersService.updateRefreshToken(payload.sub, refreshToken);
+        this.usersService.updateRefreshToken(payload.id, refreshToken);
 
         const r = {
             access_token: this.jwtService.sign(payload),

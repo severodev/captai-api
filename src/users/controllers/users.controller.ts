@@ -65,13 +65,20 @@ export class UsersController {
 
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Creates a new user' })
-    @ApiResponse({
-        status: 200
-    })
-
+    @ApiResponse({status: 200})
     @Post()
     register(@Req() req: any, @Body() createUserDto: CreateUserDto) {
         return this.usersService.create(createUserDto);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Roles('ADMIN')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Creates a new user guester' })
+    @ApiResponse({status: 200})
+    @Post('create-guester')
+    createGuester(@Req() req: any, @Body() createUserDto: CreateUserDto) {
+        return this.usersService.createGuester(createUserDto);
     }
 
     @Put('ChangePassword')

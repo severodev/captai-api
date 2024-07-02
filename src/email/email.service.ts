@@ -93,4 +93,28 @@ export class EmailService {
         console.error(err);
       });
   }
+
+  async sendGuestInvite(firstAccess: FirstAccess) {
+    this.mailerService
+      .sendMail({
+        to: firstAccess.user.email,
+        from: await I18nContext.current().translate('auth.EMAIL_GUEST_INVITE.FROM', {
+          args: { email: process.env.MAILER_DEFAULT_FROM_MAIL },
+        }),
+        subject: await I18nContext.current().translate('auth.EMAIL_GUEST_INVITE.SUBJECT'),
+        template: join(process.cwd(), 'dist', 'templates', `guest-invite.pug`),
+        context: {
+          username: firstAccess.user.name,
+          token: firstAccess.token,
+          servicePath: `${process.env.WEB_APP_URL}/password-recovery/${firstAccess.token}`,
+        },
+      })
+      .then(() => {
+        console.debug('Sucesso ao enviar email convite!');
+      })
+      .catch(err => {
+        console.error(`Erro ao enviar email de convite para : ${firstAccess.user.email}`);
+        console.error(err);
+      });
+  }
 }
