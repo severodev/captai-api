@@ -39,6 +39,7 @@ lerna-debug.log*
 .env.heroku
 .env.docker
 .env.lead
+.env.hostinger
 prod.env
 
 # Typeorm Migrations Configuration
