@@ -117,4 +117,27 @@ export class EmailService {
         console.error(err);
       });
   }
+
+  async sendTestMail(to: string, subject: string, message: string) {
+    this.mailerService
+      .sendMail({
+        to: to,
+        from: await I18nContext.current().translate('auth.EMAIL_GUEST_INVITE.FROM', {
+          args: { email: process.env.MAILER_DEFAULT_FROM_MAIL },
+        }),
+        subject: subject,
+        template: join(process.cwd(), 'dist', 'templates', `test-email-template.pug`),
+        context: {
+          message: message
+        },
+      })
+      .then(() => {
+        console.debug('Sucesso ao enviar email de testes com template!');
+      })
+      .catch(err => {
+        console.error(`Erro ao enviar email de testes com template para : ${to}`);
+        console.error(err);
+      });
+  }
+
 }

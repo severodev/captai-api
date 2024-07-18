@@ -86,7 +86,19 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env', }),
     MailerModule.forRoot({
-      transport: process.env.MAILER_TRANSPORT,
+      // transport: process.env.MAILER_TRANSPORT,
+      transport: {
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        secure: false,
+        tls:{
+          rejectUnauthorized: false
+        },
+        auth: {
+          user: process.env.EMAIL_ID,
+          pass: process.env.EMAIL_PASS
+        }
+      },
       defaults: {
         from: `"${process.env.MAILER_DEFAULT_FROM_NAME}" <${process.env.MAILER_DEFAULT_FROM_MAIL}>`,
 
@@ -152,7 +164,7 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
       urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
     }),
     ScheduleModule.forRoot(), AuditModule,
-    AuthModule, UsersModule, RolesModule, ProfilesModule, 
+    AuthModule, UsersModule, RolesModule, ProfilesModule,
     EditalModule, ActiviteModule, SegmentModule, MercadoPagoModule,
     InstitutesModule, ProjectModule, S3Module, FileManagementModule,
     DocumentsModule, LocationModule, SuppliersModule, WorkplanModule,
@@ -164,7 +176,7 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
   ],
   providers: [AppService, RolesService, UsersService, UtilService, FirstAccessService, PasswordRecoveryService, EmailService,
     PayrollService, ImagekitService, SegmentService, InstitutionService,
-    CollaboratorsService, ExpenseService,  ProjectsService,  WorkplanService, 
+    CollaboratorsService, ExpenseService, ProjectsService, WorkplanService,
     {
       provide: 'MomentWrapper',
       useValue: moment

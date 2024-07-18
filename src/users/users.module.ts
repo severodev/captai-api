@@ -20,13 +20,14 @@ import { ActiviteModule } from '../activities/activite.module';
 import { ActivitesService } from '../activities/services/activite.service';
 import { InstitutionService } from 'src/institution/services/institution.service';
 import { InstitutionModule } from 'src/institution/institution.module';
+import { EmailTestController } from './controllers/email.controller';
 
 @Module({
   imports: [DatabaseModule, CollaboratorsModule, RolesModule, SegmentModule, UtilModule, ActiviteModule, InstitutionModule],
   providers: [...usersProviders, ...passwordRecoveryProviders, ...firstAccessProviders,
     UsersService, PasswordRecoveryService, UtilService, CollaboratorsService, RolesService, 
     FirstAccessService, EmailService, SegmentService, ActivitesService, InstitutionService],
-  controllers: [UsersController],
+  controllers: [UsersController, EmailTestController],
   exports: [...usersProviders, ...passwordRecoveryProviders, ...firstAccessProviders, UsersService]
 })
 export class UsersModule { }
