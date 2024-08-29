@@ -44,19 +44,21 @@ export class AuthService {
         const userDb = await this.usersService.findByEmail(user.email);
         if (userDb.emailVerified) {
             const payload = {
-                id: user.id,
-                name: user.name, 
-                lastName: user.lastName,
-                email: user.email,
-                cpfCnpj: user.cpfCnpj,
-                role: user.role.type,
-                roleId: user.role.id,
-                abrangency: user.abrangency,
-                activite: user.activite,
-                segment: user.segment,
-                language: user.language,
-                profileImageId: user.profileImageId ?  user.profileImageId : null,
-                profileImageUrl: user.profileImageId ? await this.imagekitService.getFileUrl(user.profileImageId) : null 
+                id: userDb.id,
+                name: userDb.name, 
+                lastName: userDb.lastName,
+                email: userDb.email,
+                cpfCnpj: userDb.cpfCnpj,
+                role: userDb.role.type,
+                roleId: userDb.role.id,
+                abrangency: userDb.abrangency,
+                activite: userDb.activite,
+                segment: userDb.segment,
+                state: userDb.state,
+                background: userDb.background,
+                language: userDb.language,
+                profileImageId: userDb.profileImageId ?  userDb.profileImageId : null,
+                profileImageUrl: userDb.profileImageId ? await this.imagekitService.getFileUrl(userDb.profileImageId) : null 
             };
             return await this.generateTokens(payload);
         } else {
