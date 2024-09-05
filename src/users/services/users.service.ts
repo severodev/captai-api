@@ -26,6 +26,7 @@ import { LocationService } from 'src/location/service/location.service';
 import { SegmentService } from 'src/segment/services/segment.service';
 import { ActivitesService } from 'src/activities/services/activite.service';
 import { InstitutionService } from 'src/institution/services/institution.service';
+import { EditalsService } from 'src/edital/services/edital.service';
 
 @Injectable()
 export class UsersService {
@@ -44,7 +45,8 @@ export class UsersService {
         private readonly locationService: LocationService,
         private readonly activitesService: ActivitesService,
         private readonly segmentService: SegmentService,
-        private readonly institutionsService: InstitutionService) { }
+        private readonly institutionsService: InstitutionService,
+        private readonly editalService: EditalsService) { }
 
     async findAll(filter: UserFilter, pageOptions: PaginationMetadataDto): Promise<User[]> {
         let query = this.usersRepository.createQueryBuilder('user');
@@ -517,4 +519,47 @@ export class UsersService {
         const cpfCnpjOccurencies = await this.usersRepository.count({ where: { cpfCnpj: cpfCnpj } });
         return cpfCnpjOccurencies == 0;
     }
+
+    async userSavedEditalList(userId: number) {
+        const user = await this.usersRepository.findOne({ where: { id: +userId } })
+        if (!user) {
+            throw new NotFoundException(
+                await I18nContext.current().translate('user.NOT_FOUND', {
+                    args: { id: userId },
+                })
+            )
+        }
+
+        return user.savedEditais;
+
+    }
+
+    async updateUserSavedEditalList(userId: number, editalId: number, removeEdital: boolean = false) {
+        const user = await this.usersRepository.findOne({ where: { id: +userId } })
+        if (!user) {
+            throw new NotFoundException(
+                await I18nContext.current().translate('user.NOT_FOUND', {
+                    args: { id: userId },
+                })
+            )
+        }
+
+        if (removeEdital) {
+            if(user.savedEditais && user.savedEditais.length > 0){
+                user.savedEditais = user.savedEditais.filter(e => e.id != editalId);
+            }
+        } else {
+            if(!user.savedEditais) {
+                user.savedEditais = [];
+            }
+            const edital = await this.editalService.findOne(editalId);
+            if(edital) {
+                user.savedEditais.push(edital);
+            }
+        }
+
+        this.usersRepository.save(user)
+
+    }
+
 }

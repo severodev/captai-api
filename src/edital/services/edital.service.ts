@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Between, FindManyOptions, FindOptionsWhere, In, LessThanOrEqual, Like, Repository } from 'typeorm';
-import { edital } from '../entity/edital.entity';
+import { Edital } from '../entity/edital.entity';
 import { PaginationMetadataDto } from 'src/util/interfaces/pagination-metadata.dto';
 import { EditalFilter } from '../interfaces/edital.filter';
 
@@ -9,10 +9,10 @@ export class EditalsService {
 
     constructor(
         @Inject('EDITAIS_REPOSITORY')
-        private editalRepository: Repository<edital>,
+        private editalRepository: Repository<Edital>,
     ) { }
 
-    async findAll(filter: EditalFilter, pageOptions : PaginationMetadataDto): Promise<edital[]> {
+    async findAll(filter: EditalFilter, pageOptions : PaginationMetadataDto): Promise<Edital[]> {
         let query = this.editalRepository.createQueryBuilder('entity');
     
         if (filter.agencyList) {
@@ -57,7 +57,7 @@ export class EditalsService {
         return query.getMany();
     }
 
-    async findOne(id: number): Promise<edital> {
+    async findOne(id: number): Promise<Edital> {
         return this.editalRepository.findOne({ where: { id: id } });
     }
 

@@ -8,7 +8,7 @@ import { FirstAccess } from './first-access.entity';
 import { Segment } from 'src/segment/entity/segment.entity';
 import { State } from 'src/location/entity/state.entity';
 import { Activite } from 'src/activities/entity/Activite.entity';
-import { Institute } from 'src/institutes/entity/institute.entity';
+import { Edital } from 'src/edital/entity/edital.entity';
 import { Institution } from 'src/institution/entity/institution.entity';
 
 @Entity({ name: 'tb_user' })
@@ -75,6 +75,14 @@ export class User {
     inverseJoinColumn: { name: 'id_institution' },
   })
   institutions: Institution[];
+
+  @ManyToMany(type => Edital, { cascade: true, eager: true })
+  @JoinTable({
+    name: 'tb_user_edital',
+    joinColumn: { name: 'id_user' },
+    inverseJoinColumn: { name: 'id_edital' },
+  })
+  savedEditais: Edital[];
 
   @Exclude()
   @Column({ name: 'dt_creation', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

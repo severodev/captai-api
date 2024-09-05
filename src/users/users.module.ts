@@ -21,12 +21,15 @@ import { ActivitesService } from '../activities/services/activite.service';
 import { InstitutionService } from 'src/institution/services/institution.service';
 import { InstitutionModule } from 'src/institution/institution.module';
 import { EmailTestController } from './controllers/email.controller';
+import { EditalsService } from 'src/edital/services/edital.service';
+import { editaisProviders } from 'src/edital/providers/edital.providers';
 
 @Module({
   imports: [DatabaseModule, CollaboratorsModule, RolesModule, SegmentModule, UtilModule, ActiviteModule, InstitutionModule],
-  providers: [...usersProviders, ...passwordRecoveryProviders, ...firstAccessProviders,
+  providers: [...usersProviders, ...passwordRecoveryProviders, ...firstAccessProviders, ...editaisProviders,
     UsersService, PasswordRecoveryService, UtilService, CollaboratorsService, RolesService, 
-    FirstAccessService, EmailService, SegmentService, ActivitesService, InstitutionService],
+    FirstAccessService, EmailService, SegmentService, ActivitesService, InstitutionService,
+    EditalsService],
   controllers: [UsersController, EmailTestController],
   exports: [...usersProviders, ...passwordRecoveryProviders, ...firstAccessProviders, UsersService]
 })

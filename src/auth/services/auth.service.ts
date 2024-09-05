@@ -58,7 +58,8 @@ export class AuthService {
                 background: userDb.background,
                 language: userDb.language,
                 profileImageId: userDb.profileImageId ?  userDb.profileImageId : null,
-                profileImageUrl: userDb.profileImageId ? await this.imagekitService.getFileUrl(userDb.profileImageId) : null 
+                profileImageUrl: userDb.profileImageId ? await this.imagekitService.getFileUrl(userDb.profileImageId) : null,
+                savedEditais: userDb.savedEditais?.map(e => e.id)
             };
             return await this.generateTokens(payload);
         } else {
@@ -82,7 +83,8 @@ export class AuthService {
                 roleId: user.role.id,
                 language: user.language,
                 profileImageId: user.profileImageId ?  user.profileImageId : null,
-                profileImageUrl: user.profileImageId ? await this.imagekitService.getFileUrl(user.profileImageId) : null 
+                profileImageUrl: user.profileImageId ? await this.imagekitService.getFileUrl(user.profileImageId) : null,
+                savedEditais: user.savedEditais?.map(e => e.id)
             };                
             return await this.generateTokens(payload);
         }

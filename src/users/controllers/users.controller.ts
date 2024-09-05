@@ -15,6 +15,7 @@ import { RecoverPasswordDto } from 'src/auth/interfaces/recover-password.dto';
 import { tokenDto } from '../interfaces/token.dto';
 import { UserFilter } from '../interfaces/user.filter';
 import { jwtEditUseGuard } from 'src/auth/jwt-editUse.guard';
+import { UpdateUserEditalListDto } from '../interfaces/update-user-edital-list.dto';
 
 
 @ApiTags('Users')
@@ -132,4 +133,17 @@ export class UsersController {
     async checkAvailabilityCpfCnpj(@Query('cpfCnpj') cpfCnpj: string) {
         return this.usersService.checkAvailabilityCpfCnpj(cpfCnpj);
     }
+
+    @ApiResponse({ status: 200 })
+    @Get('user-saved-edital-list')
+    async userSavedEditalList(@Query('userId') userId: number) {
+        return this.usersService.userSavedEditalList(userId);
+    }
+
+    @ApiResponse({ status: 200 })
+    @Post('update-user-saved-edital-list')
+    async removeEdital(@Body() updateInfo: UpdateUserEditalListDto) {
+        return this.usersService.updateUserSavedEditalList(updateInfo.userId, updateInfo.editalId, updateInfo.remove);
+    }
+
 }
