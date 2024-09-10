@@ -59,7 +59,10 @@ export class AuthService {
                 language: userDb.language,
                 profileImageId: userDb.profileImageId ?  userDb.profileImageId : null,
                 profileImageUrl: userDb.profileImageId ? await this.imagekitService.getFileUrl(userDb.profileImageId) : null,
-                savedEditais: userDb.savedEditais?.map(e => e.id)
+                savedEditais: userDb.savedEditais?.map(e => e.id),
+                customerId: user.customerId,
+                subscriptionId: user.subscriptionId,
+                cardId: user.cardId
             };
             return await this.generateTokens(payload);
         } else {
@@ -84,7 +87,10 @@ export class AuthService {
                 language: user.language,
                 profileImageId: user.profileImageId ?  user.profileImageId : null,
                 profileImageUrl: user.profileImageId ? await this.imagekitService.getFileUrl(user.profileImageId) : null,
-                savedEditais: user.savedEditais?.map(e => e.id)
+                savedEditais: user.savedEditais?.map(e => e.id),
+                customerId: user.customerId,
+                subscriptionId: user.subscriptionId,
+                cardId: user.cardId
             };                
             return await this.generateTokens(payload);
         }

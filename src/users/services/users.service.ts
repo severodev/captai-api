@@ -175,7 +175,9 @@ export class UsersService {
             newUser.password = await this.utilService.generateHash(createUserDto.password);
             newUser.email = createUserDto.email.toLowerCase();
             newUser.cpfCnpj = createUserDto.cpfCnpj;
+            newUser.customerId = createUserDto.customerId;
             newUser.subscriptionId = createUserDto.subscriptionId;
+            newUser.cardId = createUserDto.cardId;
             newUser.background = createUserDto.background;
             newUser.targetValue = createUserDto.targetValue;
 

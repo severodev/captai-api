@@ -54,8 +54,14 @@ export class User {
   @Column({ name: 'ds_profile_image_id', length: 50, nullable: true})
   profileImageId: string;
 
+  @Column({ name: 'ds_customer_id', length: 50, nullable: true})
+  customerId: string;
+  
   @Column({ name: 'ds_subscription_id', length: 50, nullable: true})
   subscriptionId: string;
+
+  @Column({ name: 'ds_card_id', length: 50, nullable: true})
+  cardId: string;
 
   @Column({ name: 'ds_background', nullable: true})
   background: string;
