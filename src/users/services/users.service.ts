@@ -118,7 +118,7 @@ export class UsersService {
     }
 
     async findByEmail(email: string) {
-        return this.usersRepository.findOne({ where: { email: email } });
+        return this.usersRepository.findOne({ where: { email: email.toLowerCase() } });
     }
 
     async findUsers(
