@@ -90,7 +90,7 @@ const customLogFormat = printf(({ level, message, timestamp }) => {
       transport: {
         host: process.env.EMAIL_HOST,
         port: process.env.EMAIL_PORT,
-        secure: false,
+        secure: true,
         tls:{
           rejectUnauthorized: false
         },
