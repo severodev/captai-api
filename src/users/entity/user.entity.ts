@@ -90,7 +90,7 @@ export class User {
   })
   savedEditais: Edital[];
 
-  @Exclude()
+  // @Exclude()
   @Column({ name: 'dt_creation', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created: number;
 
