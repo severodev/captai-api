@@ -64,24 +64,20 @@ export class UsersService {
             query = query.andWhere('user.id = :id', { id: filter.id });
         }
         if (filter.name) {
-            query = query.andWhere('user.name ILIKE  :name OR user.lastName ILIKE  :name', { name: `%${filter.name}%` });
+            query = query.andWhere('user.name ILIKE :name OR user.lastName ILIKE :name', { name: `%${filter.name}%` });
         }
         if (filter.cpfCnpj) {
             query = query.andWhere('user.cpfCnpj = :cpfCnpj', { cpfCnpj: filter.cpfCnpj });
         }
         if (filter.email) {
-            query = query.andWhere('user.email = :email', { email: `%${filter.email}%` });
+            query = query.andWhere('user.email ILIKE :email', { email: `%${filter.email}%` });
         }
         if (filter.roleId) {
-            
             query = query.andWhere('user.id_role = :role', { role: filter.roleId });
-    
         }
-    
         if (filter.by && filter.order) {
             query = query.orderBy(`user.${filter.by}`, filter.order.toUpperCase() as 'ASC' | 'DESC');
         }
-    
         if (pageOptions.itemsPerPage) {
             query = query.take(pageOptions.itemsPerPage);
         }
