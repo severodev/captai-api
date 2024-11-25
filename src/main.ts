@@ -21,15 +21,6 @@ async function bootstrap() {
     origin: '*',
   });
 
-  // Enable the ValidationPipe globally
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true, // Removes properties not declared in the DTO
-      forbidNonWhitelisted: true, // Rejects requests with extra properties
-      transform: true, // Automatically transforms types (useful for numbers, dates, etc.)
-    }),
-  );
-
   const options = new DocumentBuilder()
     .setTitle('CaptAI API')
     .setDescription('CaptAI API.')
