@@ -18,15 +18,24 @@ import {
         exception instanceof HttpException
           ? exception.getStatus()
           : HttpStatus.INTERNAL_SERVER_ERROR;
-  
+
+      let error: string | object = { 
+        message: exception.message,
+        stack: exception.stack  
+      };
+
+      if (exception instanceof HttpException && status === HttpStatus.BAD_REQUEST) {
+        const errorResponse = exception.getResponse();
+        error = typeof errorResponse === 'string'
+            ? errorResponse
+            : (errorResponse as { message: string | string[] }).message || errorResponse;
+      }
+
       response.status(status).json({
         statusCode: status,
-        // timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString(),
         url: request.url,
-        error: { 
-          message: exception.message,
-          stack: exception.stack  
-        }
+        error,
       });
     }
   }
