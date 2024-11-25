@@ -5,6 +5,7 @@ import { PasswordRecovery } from '../users/entity/password-recovery.entity';
 
 import { join } from 'path';
 import { I18nContext } from 'nestjs-i18n';
+import { ContactDto } from 'src/contact/interfaces/contact.dto';
 
 @Injectable()
 export class EmailService {
@@ -114,6 +115,30 @@ export class EmailService {
       })
       .catch(err => {
         console.error(`Erro ao enviar email de convite para : ${firstAccess.user.email}`);
+        console.error(err);
+      });
+  }
+
+  async sendContactEmail(contactDto: ContactDto) {
+    this.mailerService
+      .sendMail({
+        to: process.env.MAILER_DEFAULT_FROM_MAIL,
+        from: await I18nContext.current().translate('auth.EMAIL_CONTACT.FROM', {
+          args: { email: process.env.MAILER_DEFAULT_FROM_MAIL },
+        }),
+        subject: await I18nContext.current().translate('auth.EMAIL_CONTACT.SUBJECT'),
+        template: join(process.cwd(), 'dist', 'templates', `contact-form.pug`),
+        context: {
+          name: contactDto.name,
+          email: contactDto.email,
+          message: contactDto.message,
+        },
+      })
+      .then(() => {
+        console.debug('Contact form email sent successfully!');
+      })
+      .catch(err => {
+        console.error(`Error sending contact form email from: ${contactDto.name} <${contactDto.email}>`);
         console.error(err);
       });
   }
