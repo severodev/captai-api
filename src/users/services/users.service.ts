@@ -255,7 +255,7 @@ export class UsersService {
             newUser.role = await this.rolesService.findOne(3);
 
             const savedUser = await this.usersRepository.save(newUser);
-            this.requestFirstAccess(savedUser);
+            this.requestFirstAccess(savedUser, true);
             return <UserDto>{};
         } catch (error) {
             throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -430,7 +430,7 @@ export class UsersService {
         }
     }
 
-    async requestFirstAccess(user: User): Promise<void> {
+    async requestFirstAccess(user: User, convite = false): Promise<void> {
         if (user) {
             const firstAccessRequest = new FirstAccess();
             firstAccessRequest.user = user;
@@ -445,7 +445,7 @@ export class UsersService {
 
             user.firstAccess.push(firstAccessRequest);
             await this.usersRepository.save(user);
-            if (user.role.id === 3) {
+            if (convite) {
                 this.emailService.sendGuestInvite(firstAccessRequest);
             } else {
                 this.emailService.sendEmailFirstAccessRequest(firstAccessRequest);
